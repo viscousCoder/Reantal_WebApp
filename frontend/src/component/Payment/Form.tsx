@@ -52,8 +52,8 @@ const Form = () => {
   const propertyId = localStorage.getItem("roomId");
   const {
     sessionId,
-    loading: paymentLoading,
-    error: paymentError,
+    // loading: paymentLoading,
+    // error: paymentError,
   } = useSelector((state: RootState) => state.payment);
 
   const [moveInDetails, setMoveInDetails] = useState<MoveInDetails>({

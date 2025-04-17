@@ -8,8 +8,8 @@ import { bookProperty } from "../../store/AuthSlice";
 const Success: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const data = localStorage.getItem("data");
-  console.log(JSON.parse(data));
+  // const data = localStorage.getItem("data");
+  // console.log(JSON.parse(data));
 
   useEffect(() => {
     dispatch(bookProperty());
