@@ -12,7 +12,7 @@ export class OtpUtil {
     // Implement your storage logic here (e.g., Redis, database)
     // Example with Redis:
     // await redis.setEx(`otp:${email}`, 300, otp); // Expires in 5 minutes
-    console.log(`Storing OTP ${otp} for ${email}`);
+    // console.log(`Storing OTP ${otp} for ${email}`);
   }
 
   static async verifyOtp(email: string, otp: string): Promise<boolean> {

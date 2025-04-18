@@ -203,39 +203,39 @@ const HousePolicies: React.FC = () => {
           </Grid>
         ))}
       </Grid>
-
-      <Box mt={5}>
-        <Typography variant="h6" fontWeight="bold" gutterBottom>
-          Additional Policies
-        </Typography>
-        <Grid container spacing={3}>
-          {property?.policies?.additionalPolicies.map((policy, index) => (
-            <Grid size={{ xs: 12, md: 6 }} key={index}>
-              <Card
-                onClick={() => handleCardClick(policy)}
-                sx={{ cursor: "pointer" }}
-              >
-                <CardContent>
-                  <Box display="flex" alignItems="center" gap={2}>
-                    {iconMap[policy.title] || (
-                      <GavelIcon color="disabled" fontSize="large" />
-                    )}
-                    <Box>
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        {policy.title}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        {truncate(policy.description, 40)}
-                      </Typography>
+      {(property?.policies?.additionalPolicies ?? []).length > 0 && (
+        <Box mt={5}>
+          <Typography variant="h6" fontWeight="bold" gutterBottom>
+            Additional Policies
+          </Typography>
+          <Grid container spacing={3}>
+            {property?.policies?.additionalPolicies?.map((policy, index) => (
+              <Grid size={{ xs: 12, md: 6 }} key={index}>
+                <Card
+                  onClick={() => handleCardClick(policy)}
+                  sx={{ cursor: "pointer" }}
+                >
+                  <CardContent>
+                    <Box display="flex" alignItems="center" gap={2}>
+                      {iconMap[policy.title] || (
+                        <GavelIcon color="disabled" fontSize="large" />
+                      )}
+                      <Box>
+                        <Typography variant="subtitle1" fontWeight="bold">
+                          {policy.title}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          {truncate(policy.description, 40)}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      )}
       <Dialog open={openDialog} onClose={handleClose} fullWidth maxWidth="sm">
         <DialogTitle>
           {selectedPolicy?.title}

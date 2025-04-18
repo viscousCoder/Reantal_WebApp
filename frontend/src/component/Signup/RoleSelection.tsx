@@ -116,6 +116,17 @@ export default function RoleSelection() {
                 Property Owner
               </Button>
             </Box>
+            <Box>
+              <Typography mt={2}>
+                Already have an account?{" "}
+                <Button
+                  onClick={() => navigate("/login")}
+                  sx={{ textTransform: "none" }}
+                >
+                  Sign in
+                </Button>
+              </Typography>
+            </Box>
           </Box>
         </Grid>
       </Grid>

@@ -5,6 +5,7 @@ import {
   handleGetDetails,
   handleGetProperty,
   handleLoginUser,
+  handleRegisterOwner,
   handleRegisterUser,
   handleSendEmailOtp,
   handleSendPhoneOtp,
@@ -13,12 +14,21 @@ import {
 } from "../controller/auth";
 // import { uploadProfilePicture } from "../middleware/uploadMiddleware";
 import { upload } from "../utils/cloudinaryUploader";
+import { uploadProfilePicture } from "../middleware/uploadMiddleware";
 const router = express.Router();
 
 router.post("/send-email", handleSendEmailOtp);
 router.post("/send-phone", handleSendPhoneOtp);
 router.post("/verify-phone", handleVerifyPhoneOtp);
 router.post("/register", upload.single("profilePicture"), handleRegisterUser);
+// router.post("/owner/register", upload.none(), handleRegisterOwner);
+router.post(
+  "/owner/register",
+  upload.single("profilePicture"),
+  express.json(),
+  // uploadProfilePicture,
+  handleRegisterOwner
+);
 
 // router.post("/register", uploadProfilePicture, handleRegisterUser);
 

@@ -57,7 +57,7 @@ const Slider: React.FC = () => {
   const { loading, property: singleProperty } = useSelector(
     (state: RootState) => state.property
   );
-  console.log(singleProperty, "data");
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const initialVisibleImages = 5; // Initially show 5 images

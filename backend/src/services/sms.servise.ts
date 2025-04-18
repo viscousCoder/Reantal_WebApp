@@ -18,7 +18,7 @@ export class SmsService {
         from: twilioConfig.phoneNumber,
         to: `+${to}`, // Expects phone with country code (e.g., +919876543210)
       });
-      console.log(`SMS sent to ${to}: ${message.sid}`);
+      // console.log(`SMS sent to ${to}: ${message.sid}`);
       return true;
     } catch (error) {
       console.error(`Error sending SMS to ${to}:`, error);

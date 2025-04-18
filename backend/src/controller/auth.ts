@@ -12,6 +12,8 @@ import { handleGenerateToken } from "../utils/token";
 import { AuthenticatedRequest } from "../types/requestTypes";
 import { Property } from "../entities/Property";
 import { Booking } from "../entities/Booking";
+import { Owner } from "../entities/Owner";
+import cloudinary from "../config/cloudinary";
 
 const mailService = new MailService();
 const smsService = new SmsService();
@@ -169,6 +171,7 @@ export async function handleVerifyPhoneOtp(
   }
 }
 
+//tentant registeration
 export async function handleRegisterUser(
   req: Request,
   res: Response
@@ -225,6 +228,9 @@ export async function handleRegisterUser(
     });
 
     if (existingUser) {
+      if (req.file?.filename) {
+        await cloudinary.uploader.destroy(`${req.file.filename}`);
+      }
       res.status(400).json({
         errors: {
           [existingUser.email === email ? "email" : "phoneNumber"]:
@@ -238,7 +244,7 @@ export async function handleRegisterUser(
     const user = new User();
     user.fullName = fullName;
     user.email = email;
-    user.phoneCode = phoneCode || "+91"; // Default to +91 if not provided
+    user.phoneCode = phoneCode || "+91";
     user.phoneNumber = phoneNumber;
     user.password = await bcrypt.hash(password, 10);
     user.agreeToTerms = agreeToTerms;
@@ -255,9 +261,8 @@ export async function handleRegisterUser(
     user.emailVerified = true; // Based on your sample data
     user.phoneVerified = true; // Based on your sample data
 
-    // Handle profile picture from Cloudinary
-    // if (req.file) {
-    //   user.profilePictureFile = req.file.path; // Cloudinary URL
+    // if (req.file && typeof req.file.path === "string") {
+    //   user.profilePicture = req.file.path;
     // }
     if (req.file) {
       user.profilePicture = req.file.path; // Cloudinary URL
@@ -281,46 +286,232 @@ export async function handleRegisterUser(
   }
 }
 
+export async function handleRegisterOwner(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const {
+      fullName,
+      email,
+      phoneCode,
+      phoneNumber,
+      password,
+      confirmPassword,
+      companyName,
+      agreeToTerms,
+      street,
+      city,
+      state,
+      zip,
+      country,
+      verificationMethod,
+      emailOtp,
+      phoneOtp,
+      emailVerified,
+      phoneVerified,
+      generatedEmailOtp,
+      generatedPhoneOtp,
+      verifiedEmailOtp,
+      verifiedPhoneOtp,
+    } = req.body;
+
+    // Basic validations
+    if (
+      !fullName ||
+      !email ||
+      !phoneNumber ||
+      !password ||
+      !confirmPassword ||
+      !agreeToTerms
+    ) {
+      res
+        .status(400)
+        .json({ errors: { general: "Required fields are missing" } });
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      res
+        .status(400)
+        .json({ errors: { confirmPassword: "Passwords do not match" } });
+      return;
+    }
+
+    const AppDataSource = await getConnection();
+    const ownerRepository = AppDataSource.getRepository(Owner);
+
+    const existingOwner = await ownerRepository.findOne({
+      where: [{ email }, { phoneNumber }],
+    });
+
+    if (existingOwner) {
+      if (req.file?.filename) {
+        await cloudinary.uploader.destroy(`${req.file.filename}`);
+      }
+      res.status(400).json({
+        errors: {
+          [existingOwner.email === email ? "email" : "phoneNumber"]:
+            "Already exists",
+        },
+      });
+      return;
+    }
+
+    // Create and save new owner
+    const owner = new Owner();
+    owner.fullName = fullName;
+    owner.email = email;
+    owner.phoneCode = phoneCode || "+91";
+    owner.phoneNumber = phoneNumber;
+    owner.password = await bcrypt.hash(password, 10);
+    owner.companyName = companyName || null;
+    owner.agreeToTerms = agreeToTerms === "true";
+    owner.street = street || "";
+    owner.city = city || "";
+    owner.state = state || "";
+    owner.zip = zip || "";
+    owner.country = country || "";
+    owner.verificationMethod = verificationMethod || "phone";
+    owner.emailOtp = emailOtp || null;
+    owner.phoneOtp = phoneOtp || null;
+    owner.emailVerified = emailVerified === "true";
+    owner.phoneVerified = phoneVerified === "true";
+    owner.generatedEmailOtp = generatedEmailOtp || null;
+    owner.generatedPhoneOtp = generatedPhoneOtp || null;
+    owner.verifiedEmailOtp = verifiedEmailOtp || null;
+    owner.verifiedPhoneOtp = verifiedPhoneOtp || null;
+
+    if (req.file) {
+      owner.profilePicture = req.file.path;
+    }
+
+    await ownerRepository.save(owner);
+
+    res.status(201).json({
+      message: "Owner registered successfully",
+      owner: {
+        id: owner.id,
+        fullName: owner.fullName,
+        email: owner.email,
+        phoneNumber: owner.phoneNumber,
+        profilePicture: owner.profilePicture,
+      },
+    });
+  } catch (error: any) {
+    console.error("Owner registration error:", error);
+    if (req.file?.filename) {
+      await cloudinary.uploader.destroy(`main_rental/${req.file.filename}`);
+    }
+
+    res.status(500).json({
+      errors: { server: "Internal server error", detail: error.message },
+    });
+  }
+}
+
+// export async function handleLoginUser(
+//   req: Request,
+//   res: Response
+// ): Promise<void> {
+//   try {
+//     const { email, password,userRole } = req.body;
+
+//     if (!email || !password) {
+//       res
+//         .status(400)
+//         .json({ errors: { general: "Email and password are required" } });
+//       return;
+//     }
+
+//     const AppDataSource = await getConnection();
+//     const userRepository = AppDataSource.getRepository(User);
+
+//     const user = await userRepository.findOne({ where: { email } });
+
+//     if (!user) {
+//       res
+//         .status(401)
+//         .json({ errors: { general: "Invalid email or password" } });
+//       return;
+//     }
+
+//     // Compare password
+//     const isMatch = await bcrypt.compare(password, user.password);
+
+//     if (!isMatch) {
+//       res
+//         .status(401)
+//         .json({ errors: { general: "Invalid email or password" } });
+//       return;
+//     }
+
+//     const token = await handleGenerateToken(user);
+//     const userData = { ...user, token: token };
+
+//     // Login success
+//     res.status(200).json({
+//       message: "Login successful",
+//       userData,
+//     });
+//   } catch (error) {
+//     console.error("Login error:", error);
+//     res.status(500).json({ errors: { server: "Internal server error" } });
+//   }
+// }
+
+//login user
+
 export async function handleLoginUser(
   req: Request,
   res: Response
 ): Promise<void> {
   try {
-    const { email, password } = req.body;
+    const { email, password, userRole } = req.body;
 
-    if (!email || !password) {
-      res
-        .status(400)
-        .json({ errors: { general: "Email and password are required" } });
+    if (!email || !password || !userRole) {
+      res.status(400).json({
+        errors: { general: "Email, password, and user role are required" },
+      });
       return;
     }
 
     const AppDataSource = await getConnection();
-    const userRepository = AppDataSource.getRepository(User);
 
-    const user = await userRepository.findOne({ where: { email } });
+    let user: User | Owner | null = null;
 
-    if (!user) {
-      res
-        .status(401)
-        .json({ errors: { general: "Invalid email or password" } });
+    if (userRole === "tenant") {
+      const userRepository = AppDataSource.getRepository(User);
+      user = await userRepository.findOne({ where: { email } });
+    } else if (userRole === "owner") {
+      const ownerRepository = AppDataSource.getRepository(Owner);
+      user = await ownerRepository.findOne({ where: { email } });
+    } else {
+      res.status(400).json({
+        errors: { general: "Invalid user role" },
+      });
       return;
     }
 
-    // Compare password
+    if (!user) {
+      res.status(401).json({
+        errors: { general: "Invalid email or password" },
+      });
+      return;
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      res
-        .status(401)
-        .json({ errors: { general: "Invalid email or password" } });
+      res.status(401).json({
+        errors: { general: "Invalid email or password" },
+      });
       return;
     }
 
     const token = await handleGenerateToken(user);
-    const userData = { ...user, token: token };
+    const userData = { ...user, token };
 
-    // Login success
     res.status(200).json({
       message: "Login successful",
       userData,
@@ -331,20 +522,61 @@ export async function handleLoginUser(
   }
 }
 
+// export async function handleGetDetails(
+//   req: AuthenticatedRequest,
+//   res: Response
+// ): Promise<void> {
+//   const id = req.user?.id;
+//   const userRole = req.user?.userRole;
+//   if (!id) {
+//     res.status(401).json({ error: "Unauthorired: User is missing" });
+//   }
+//   try {
+//     const AppDataSource = await getConnection();
+//     const userRepo = AppDataSource.getRepository(User);
+//     const user = await userRepo.findOne({
+//       where: { id },
+//     });
+//     if (!user) {
+//       res.status(404).json({ error: "User not found" });
+//     } else {
+//       res.status(200).json(user);
+//     }
+//   } catch (error) {
+//     console.error("Error getting user details:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// }
+
+//to get all data
+
 export async function handleGetDetails(
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> {
   const id = req.user?.id;
+  const userRole = req.user?.userRole;
   if (!id) {
     res.status(401).json({ error: "Unauthorired: User is missing" });
   }
   try {
     const AppDataSource = await getConnection();
-    const userRepo = AppDataSource.getRepository(User);
-    const user = await userRepo.findOne({
-      where: { id },
-    });
+    let user: User | Owner | null = null;
+    if (userRole === "tenant") {
+      const userRepo = AppDataSource.getRepository(User);
+      user = await userRepo.findOne({
+        where: { id },
+      });
+    } else if (userRole === "owner") {
+      const ownerRepository = AppDataSource.getRepository(Owner);
+      user = await ownerRepository.findOne({ where: { id } });
+    } else {
+      res.status(400).json({
+        errors: { general: "Invalid user role" },
+      });
+      return;
+    }
+
     if (!user) {
       res.status(404).json({ error: "User not found" });
     } else {
@@ -356,7 +588,6 @@ export async function handleGetDetails(
   }
 }
 
-//to get all data
 export async function getAllProperties(
   req: Request,
   res: Response
@@ -487,7 +718,7 @@ export async function handleGetBookedProperty(
 
     const bookings = await bookingRepo.find({
       where: { user: { id: userId } },
-      relations: ["property", "photos", "description"],
+      relations: ["property"],
       order: { created_at: "DESC" },
     });
 

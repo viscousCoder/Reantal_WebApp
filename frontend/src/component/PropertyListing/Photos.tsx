@@ -15,9 +15,15 @@ interface UploadedPhoto {
   url: string;
   label: string;
 }
+// interface PropertyPhotosProps {
+//   photos: UploadedPhoto[];
+//   setPhotos: (photos: UploadedPhoto[]) => void;
+// }
+
 interface PropertyPhotosProps {
   photos: UploadedPhoto[];
   setPhotos: (photos: UploadedPhoto[]) => void;
+  error?: string; // ⬅️ Add this
 }
 
 const HiddenInput = styled("input")({
@@ -28,24 +34,6 @@ const PropertyPhotos: React.FC<PropertyPhotosProps> = ({
   photos,
   setPhotos,
 }) => {
-  //   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  //   const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //     const files = event.target.files;
-  //     if (files) {
-  //       const uploaded = Array.from(files).map((file) => ({
-  //         file,
-  //         url: URL.createObjectURL(file),
-  //         label: file.name,
-  //       }));
-  //       setPhotos((prev) => [...prev, ...uploaded]);
-  //     }
-  //   };
-
-  //   const handleRemove = (index: number) => {
-  //     setPhotos((prev) => prev.filter((_, i) => i !== index));
-  //   };
-
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -152,3 +140,21 @@ const PropertyPhotos: React.FC<PropertyPhotosProps> = ({
 };
 
 export default PropertyPhotos;
+
+//   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+//   const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+//     const files = event.target.files;
+//     if (files) {
+//       const uploaded = Array.from(files).map((file) => ({
+//         file,
+//         url: URL.createObjectURL(file),
+//         label: file.name,
+//       }));
+//       setPhotos((prev) => [...prev, ...uploaded]);
+//     }
+//   };
+
+//   const handleRemove = (index: number) => {
+//     setPhotos((prev) => prev.filter((_, i) => i !== index));
+//   };

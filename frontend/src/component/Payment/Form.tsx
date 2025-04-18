@@ -134,15 +134,12 @@ const Form = () => {
     // const totalAmount = pgData.monthlyRent * months + pgData.securityDeposit; // Convert to cents
     const totalAmount = (Number(rent) + Number(securityDeposit)) * 100;
 
-    console.log("totalAMount", totalAmount);
-
     const data = {
       moveInDate: moveInDetails.moveInDate,
       duration: moveInDetails.duration,
       totalAmount: totalAmount,
     };
 
-    // console.log(data, "data");
     localStorage.setItem("data", JSON.stringify(data));
     dispatch(
       createCheckoutSession({

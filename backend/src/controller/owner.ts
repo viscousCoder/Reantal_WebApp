@@ -6,7 +6,8 @@ import { PropertyPolicies } from "../entities/PropertyPolicies";
 import cloudinary from "../config/cloudinary";
 import { getConnection } from "../database/db.config";
 import { AuthenticatedRequest } from "../types/requestTypes";
-import { User } from "../entities/Users";
+// import { User } from "../entities/Users";
+import { Owner } from "../entities/Owner";
 
 export async function handleProperty(
   req: AuthenticatedRequest,
@@ -49,7 +50,7 @@ export async function handleProperty(
 
     const userId = req.user?.id;
 
-    const userRepository = AppDataSource.getRepository(User);
+    const userRepository = AppDataSource.getRepository(Owner);
     const propertyRepo = AppDataSource.getRepository(Property);
     const descriptionRepo = AppDataSource.getRepository(Description);
     const policyRepo = AppDataSource.getRepository(PropertyPolicies);
@@ -137,6 +138,7 @@ export async function handleProperty(
       bathrooms: Number(bathrooms),
       rent: Number(rent),
       noOfSet: Number(noOfSet),
+      totalRoom: Number(noOfSet),
       securityDeposit: Number(securityDeposit),
       leaseTerm,
       availableDate: availableDate ? new Date(availableDate) : null,
@@ -144,7 +146,7 @@ export async function handleProperty(
       photos: uploadedPhotos,
       description,
       policies,
-      user,
+      owner: user,
     });
 
     await propertyRepo.save(newProperty);
@@ -152,7 +154,7 @@ export async function handleProperty(
     // Return full property with relations
     const savedProperty = await propertyRepo.findOne({
       where: { id: newProperty.id },
-      relations: ["user", "photos", "description", "policies"],
+      relations: ["owner", "photos", "description", "policies"],
     });
 
     res.status(201).json({
@@ -178,7 +180,7 @@ export async function handleGetCurrentOwnerProperty(
       return;
     }
 
-    const userRepository = AppDataSource.getRepository(User);
+    const userRepository = AppDataSource.getRepository(Owner);
     const propertyRepository = AppDataSource.getRepository(Property);
 
     const user = await userRepository.findOneBy({ id: userId });
@@ -188,7 +190,7 @@ export async function handleGetCurrentOwnerProperty(
     }
 
     const userProperties = await propertyRepository.find({
-      where: { user: { id: userId } },
+      where: { owner: { id: userId } },
       relations: ["description", "photos", "policies"],
       order: {
         created_at: "DESC",

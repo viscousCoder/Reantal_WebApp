@@ -8,6 +8,8 @@ import {
   AuthResponse,
 } from "../types/types";
 import { APP_URL } from "../common/Constant";
+import { OwnerResponse, RegisterOwnerArgs } from "../types/owner";
+import { toast } from "react-toastify";
 
 const apiUrl = APP_URL;
 // Define the user form data interface (based on your provided structure)
@@ -78,6 +80,7 @@ const initialState: AuthState = {
   error: null,
   formData: initialFormData,
   registeredUser: null,
+  bookedRoom: [],
 };
 
 // Async thunk to send email OTP (unchanged)
@@ -148,10 +151,11 @@ export const registerUser = createAsyncThunk<
 >("auth/registerUser", async ({ formData, navigate }, { rejectWithValue }) => {
   try {
     const data = new FormData();
-    // Append all form fields
     Object.entries(formData).forEach(([key, value]) => {
       if (key === "profilePicture" && value instanceof File) {
-        data.append(key, value);
+        data.append("profilePicture", value);
+      } else if (typeof value === "boolean") {
+        data.append(key, value ? "true" : "false");
       } else if (value !== undefined && value !== null) {
         data.append(key, value.toString());
       }
@@ -166,13 +170,59 @@ export const registerUser = createAsyncThunk<
         },
       }
     );
+
     navigate("/login");
+    toast.success("Registration successful");
     return response.data.user;
+  } catch (error) {
+    const axiosError = error as AxiosError<ErrorResponse>;
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      toast.error(error.response.data.message);
+    } else {
+      toast.error("Registration failed");
+    }
+    console.error("Registration error:", error);
+    return rejectWithValue(
+      axiosError.response?.data || {
+        errors: { server: "Failed to register user" },
+      }
+    );
+  }
+});
+
+//register owner
+export const registerOwner = createAsyncThunk<
+  OwnerResponse,
+  RegisterOwnerArgs,
+  { rejectValue: ErrorResponse }
+>("auth/registerOwner", async ({ formData, navigate }, { rejectWithValue }) => {
+  try {
+    const data = new FormData();
+
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key === "profilePicture" && value instanceof File) {
+        data.append("profilePicture", value);
+      } else if (typeof value === "boolean") {
+        data.append(key, value ? "true" : "false");
+      } else if (value !== undefined && value !== null) {
+        data.append(key, value.toString());
+      }
+    });
+
+    const response = await axios.post<{
+      message: string;
+      owner: OwnerResponse;
+    }>(`${apiUrl}/owner/register`, data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    navigate("/login");
+    return response.data.owner;
   } catch (error) {
     const axiosError = error as AxiosError<ErrorResponse>;
     return rejectWithValue(
       axiosError.response?.data || {
-        errors: { server: "Failed to register user" },
+        errors: { server: "Failed to register owner" },
       }
     );
   }
@@ -250,7 +300,6 @@ export const getDetails = createAsyncThunk<
       },
     });
     if (response.status === 200) {
-      console.log(response.data);
       localStorage.setItem("id", response.data.id);
       localStorage.setItem("userRole", response.data.userRole);
       return response.data;
@@ -298,6 +347,29 @@ export const bookProperty = createAsyncThunk(
 
       if (response.status === 200) {
         return response.data;
+      } else {
+        return rejectWithValue("Booking failed.");
+      }
+    } catch (error) {
+      console.error("Error booking property:", error);
+      return rejectWithValue("Failed to book property");
+    }
+  }
+);
+
+//getting booked room list
+export const fetchBookedProperties = createAsyncThunk(
+  "bookedProperties/fetchBookedProperties",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${apiUrl}/get-booked-property`, {
+        headers: {
+          "x-token": token,
+        },
+      });
+      if (response.status === 200) {
+        return response.data.bookings;
       } else {
         return rejectWithValue("Booking failed.");
       }
@@ -426,13 +498,26 @@ const authSlice = createSlice({
           state.registeredUser = action.payload;
           state.formData = initialFormData; // Clear form after success
           state.isAuthenticated = true; // Set authenticated status
-          state.user = {
-            email: action.payload.email,
-            phoneNumber: action.payload.phoneNumber,
-          };
+          // state.user = action.payload;
         }
       )
       .addCase(registerUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || {
+          errors: { server: "Failed to register user" },
+        };
+      });
+
+    // Register owner
+    builder
+      .addCase(registerOwner.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(registerOwner.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(registerOwner.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || {
           errors: { server: "Failed to register user" },
@@ -445,9 +530,9 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
+      .addCase(loginUser.fulfilled, (state) => {
         state.loading = false;
-        state.user = action.payload;
+        // state.user = action.payload;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -461,11 +546,30 @@ const authSlice = createSlice({
       })
       .addCase(getDetails.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = action.payload?.errors?.server || "Login failed";
+        state.user = action.payload;
       })
       .addCase(getDetails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.errors?.general || "Login failed";
+      });
+    //booked room data / list
+    builder
+      .addCase(fetchBookedProperties.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchBookedProperties.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = "";
+
+        state.bookedRoom = action.payload;
+      })
+      .addCase(fetchBookedProperties.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          (action.payload as string) ||
+          action.error.message ||
+          "Booking failed";
       });
   },
 });

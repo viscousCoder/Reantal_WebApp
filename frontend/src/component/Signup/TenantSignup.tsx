@@ -9,6 +9,8 @@ import {
   FormControl,
   FormControlLabel,
   FormLabel,
+  IconButton,
+  InputAdornment,
   MenuItem,
   Radio,
   RadioGroup,
@@ -26,9 +28,10 @@ import {
   registerUser,
   sendOtp,
   sendPhoneOtp,
-  verifyOtp,
+  // verifyOtp,
 } from "../../store/AuthSlice";
 import Loading from "../Loading/Loading";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 // Interfaces for TypeScript
 interface FormData {
@@ -88,7 +91,7 @@ const TenantSignup: React.FC = () => {
     emailOtp: "",
     phoneOtp: "",
     emailVerified: false,
-    phoneVerified: false,
+    phoneVerified: true,
     employment: "",
     income: "",
     rentalHistory: "",
@@ -112,6 +115,13 @@ const TenantSignup: React.FC = () => {
     "Profile Picture",
     "Payment",
   ];
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+  const toggleConfirmPasswordVisibility = () =>
+    setShowConfirmPassword((prev) => !prev);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -302,7 +312,6 @@ const TenantSignup: React.FC = () => {
     setFormData((prev) => ({ ...prev, errors }));
     if (Object.values(errors).every((error) => !error)) {
       if (activeStep === steps.length - 1) {
-        console.log("Form Submitted:", formData);
         const userFormData = {
           fullName: formData.fullName,
           email: formData.email,
@@ -342,7 +351,7 @@ const TenantSignup: React.FC = () => {
           emailOtp: "",
           phoneOtp: "",
           emailVerified: false,
-          phoneVerified: false,
+          phoneVerified: true,
           employment: "",
           income: "",
           rentalHistory: "",
@@ -364,11 +373,19 @@ const TenantSignup: React.FC = () => {
     }
   };
 
+  // const handleBack = () => {
+  //   setActiveStep((prevStep) => prevStep - 1);
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     errors: { ...prev.errors, [steps[activeStep]]: "Re-validate this step" },
+  //   }));
+  // };
   const handleBack = () => {
     setActiveStep((prevStep) => prevStep - 1);
+    // Clear errors for the step we're going back to
     setFormData((prev) => ({
       ...prev,
-      errors: { ...prev.errors, [steps[activeStep]]: "Re-validate this step" },
+      errors: {},
     }));
   };
 
@@ -396,7 +413,7 @@ const TenantSignup: React.FC = () => {
     if (formData.verificationMethod === "email" && formData.email) {
       const otp = generateOtp();
       dispatch(sendOtp({ email: formData.email }));
-      console.log("Generated Email OTP:", otp, formData.email);
+
       setFormData((prev) => ({ ...prev, generatedEmailOtp: otp }));
     } else if (
       formData.verificationMethod === "phone" &&
@@ -405,7 +422,7 @@ const TenantSignup: React.FC = () => {
       const otp = generateOtp();
       const phoneNumber = formData.phoneCode + formData.phoneNumber;
       dispatch(sendPhoneOtp({ phoneNumber }));
-      console.log("Generated Phone OTP:", otp);
+
       setFormData((prev) => ({ ...prev, generatedPhoneOtp: otp }));
     }
   };
@@ -474,8 +491,9 @@ const TenantSignup: React.FC = () => {
         }));
       }
     } else if (formData.verificationMethod === "phone") {
-      const phoneNumber = formData.phoneCode + formData.phoneNumber;
-      dispatch(verifyOtp({ phoneNumber, code: formData.phoneOtp }));
+      // const phoneNumber = formData.phoneCode + formData.phoneNumber;
+      // dispatch(verifyOtp({ phoneNumber, code: formData.phoneOtp }));
+      setActiveStep((prevStep) => prevStep + 1);
     }
   };
 
@@ -607,7 +625,7 @@ const TenantSignup: React.FC = () => {
                 <TextField
                   fullWidth
                   label="Password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   margin="normal"
                   value={formData.password}
                   onChange={handleChange("password")}
@@ -615,6 +633,18 @@ const TenantSignup: React.FC = () => {
                   error={!!formData.errors.password}
                   helperText={formData.errors.password}
                   variant="outlined"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={togglePasswordVisibility}
+                          edge="end"
+                        >
+                          {showPassword ? <Visibility /> : <VisibilityOff />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
                 <Box sx={{ height: 10, backgroundColor: "#ddd", mb: 2 }}>
                   <Box
@@ -634,7 +664,7 @@ const TenantSignup: React.FC = () => {
                 <TextField
                   fullWidth
                   label="Confirm Password"
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   margin="normal"
                   value={formData.confirmPassword}
                   onChange={handleChange("confirmPassword")}
@@ -642,6 +672,22 @@ const TenantSignup: React.FC = () => {
                   error={!!formData.errors.confirmPassword}
                   helperText={formData.errors.confirmPassword}
                   variant="outlined"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={toggleConfirmPasswordVisibility}
+                          edge="end"
+                        >
+                          {showConfirmPassword ? (
+                            <Visibility />
+                          ) : (
+                            <VisibilityOff />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
                 <FormControlLabel
                   control={

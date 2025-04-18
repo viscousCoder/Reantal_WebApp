@@ -20,13 +20,14 @@ import HousePolicies from "./HousePolicies";
 
 const RoomDetails: React.FC = () => {
   const navigate = useNavigate();
+  const userRole = localStorage.getItem("userRole");
   const { propertyId } = useParams<{ propertyId: string }>();
   const dispatch = useDispatch<AppDispatch>();
   const { loading, property: pgData } = useSelector(
     (state: RootState) => state.property
   );
 
-  console.log(pgData, "Iniside room Details");
+  const bookedRoomData = localStorage.getItem("bookedRoomData");
 
   useEffect(() => {
     if (!propertyId) return;
@@ -34,6 +35,9 @@ const RoomDetails: React.FC = () => {
     // return () => {
     // dispatch(resetPaymentState());
     // };
+    return () => {
+      localStorage.removeItem("bookedRoomData");
+    };
   }, [dispatch, propertyId]);
 
   const visibleAmenities = pgData?.description?.amenities?.map((a: any) => a);
@@ -54,7 +58,6 @@ const RoomDetails: React.FC = () => {
   }
 
   const handleBookIt = () => {
-    console.log(!pgData, pgData);
     // if (!pgData) return;
     localStorage.setItem("rent", String(pgData.rent));
     localStorage.setItem("securityDeposit", String(pgData.securityDeposit));
@@ -244,16 +247,6 @@ const RoomDetails: React.FC = () => {
                       >
                         {pgData.description?.description}
                       </Typography>
-                      {/* <Typography
-                        variant="h6"
-                        color="text.primary"
-                        gutterBottom
-                      >
-                        House Rules
-                      </Typography> */}
-                      {/* <ul style={{ paddingLeft: 20, color: "#757575" }}>
-                        {splitHouseRules(pgData.houseRules)}
-                      </ul> */}
                     </CardContent>
                   </Grid>
 
@@ -263,11 +256,17 @@ const RoomDetails: React.FC = () => {
                   <Grid size={{ xs: 12 }}>
                     <HousePolicies />
                   </Grid>
-                  <Grid size={{ xs: 12 }}>
-                    <Button variant="outlined" fullWidth onClick={handleBookIt}>
-                      Book It
-                    </Button>
-                  </Grid>
+                  {!bookedRoomData && userRole !== "owner" && (
+                    <Grid size={{ xs: 12 }}>
+                      <Button
+                        variant="outlined"
+                        fullWidth
+                        onClick={handleBookIt}
+                      >
+                        Book It
+                      </Button>
+                    </Grid>
+                  )}
                 </Grid>
               </Grid>
             </Grid>

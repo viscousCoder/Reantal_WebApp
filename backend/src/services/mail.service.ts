@@ -31,7 +31,7 @@ export class MailService {
       };
 
       await this.transporter.sendMail(mailOptions);
-      console.log(`OTP email sent to ${to}`);
+      // console.log(`OTP email sent to ${to}`);
       return true;
     } catch (error) {
       console.error(`Error sending email to ${to}:`, error);

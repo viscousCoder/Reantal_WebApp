@@ -19,10 +19,10 @@ export class PropertyPolicies {
   @Column()
   smokingPolicy!: "allowed" | "outside" | "none";
 
-  @Column({ type: "text" })
+  @Column({ type: "text", nullable: true })
   petPolicyDescription!: string;
 
-  @Column({ type: "text" })
+  @Column({ type: "text", nullable: true })
   smokingPolicyDescription!: string;
 
   @Column({ type: "text" })

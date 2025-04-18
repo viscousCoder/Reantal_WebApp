@@ -12,8 +12,8 @@ const app: Application = express();
 const port = 1234;
 app.use(
   cors({
-    // origin: "http://localhost:5173",
-    origin: "https://rentalapp02.netlify.app",
+    origin: "http://localhost:5173",
+    // origin: "https://rentalapp02.netlify.app",
     methods: ["PUT", "POST", "DELETE", "GET", "PATCH"],
     credentials: true,
   })
@@ -28,6 +28,7 @@ async function init() {
     app.use(handleAuthentication);
 
     //routes
+
     app.use("/", authRoute);
     app.use("/", ownerRoute);
     app.use("/", paymentRoute);

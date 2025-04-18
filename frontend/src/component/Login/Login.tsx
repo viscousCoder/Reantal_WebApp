@@ -21,11 +21,12 @@ import {
 } from "@mui/icons-material";
 import { styled } from "@mui/system";
 import { useNavigate } from "react-router-dom";
-import LockOpenIcon from "@mui/icons-material/LockOpen";
+// import LockOpenIcon from "@mui/icons-material/LockOpen";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store/store";
 import { loginUser } from "../../store/AuthSlice";
 import Loading from "../Loading/Loading";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const TestimonialBox = styled(Box)(({ theme }) => ({
   backgroundColor: "rgba(0, 0, 0, 0.5)",
@@ -43,8 +44,9 @@ const Login: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const [language, setLanguage] = useState("English");
   const [showPassword, setShowPassword] = useState(false);
+  const userRole = ["tenant", "owner", "admin"];
 
-  const userRole = ["Tenant", "Property Owner", "Admin"];
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -91,7 +93,6 @@ const Login: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log("Form Data:", formData);
       dispatch(loginUser({ formData: formData, navigate }));
       setFormData({
         email: "",
@@ -99,10 +100,6 @@ const Login: React.FC = () => {
         userRole: userRole[tabValue],
       });
     }
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
   };
 
   return (
@@ -232,12 +229,17 @@ const Login: React.FC = () => {
                         {field === "fullName" && <PersonIcon />}
                         {field === "email" && <EmailIcon />}
                         {field === "mobile" && <PhoneIcon />}
+                        {field === "password" && <LockIcon />}
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
                         {field === "password" && (
                           <IconButton
                             onClick={togglePasswordVisibility}
-                            edge="start"
+                            edge="end"
                           >
-                            {showPassword ? <LockOpenIcon /> : <LockIcon />}
+                            {showPassword ? <Visibility /> : <VisibilityOff />}
                           </IconButton>
                         )}
                       </InputAdornment>
@@ -266,7 +268,7 @@ const Login: React.FC = () => {
                 sx={{ mt: 2 }}
                 type="submit"
               >
-                Register
+                Sign In
               </Button>
               <Typography mt={2}>
                 Do not have an account?{" "}

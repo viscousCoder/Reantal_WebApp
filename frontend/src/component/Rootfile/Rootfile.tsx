@@ -12,6 +12,8 @@ import RoomDetails from "../RoomDetail/RoomDetail";
 import Form from "../Payment/Form";
 import Success from "../Payment/Success";
 import Cancel from "../Payment/Cancel";
+import BookedRooms from "../Booked/Booked";
+import ListedProperties from "../ListedProperty/ListedProperty";
 
 function Rootfile() {
   const router = createBrowserRouter([
@@ -62,6 +64,22 @@ function Rootfile() {
         {
           path: "/cancel",
           element: <Cancel />,
+        },
+        {
+          path: "/booked",
+          element: <BookedRooms />,
+        },
+        {
+          path: "/booked/:propertyId",
+          element: <RoomDetails />,
+        },
+        {
+          path: "/listedProperty",
+          element: <ListedProperties />,
+        },
+        {
+          path: "/listed/:propertyId",
+          element: <RoomDetails />,
         },
       ],
     },

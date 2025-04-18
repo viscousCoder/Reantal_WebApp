@@ -31,8 +31,6 @@ const Nearby: React.FC = () => {
     };
   };
 
-  console.log("navigation", property);
-
   const [mapLocation, setMapLocation] = useState<[number, number]>([
     28.6841736, 77.3702128,
   ]);
