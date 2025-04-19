@@ -58,24 +58,24 @@ const Header: React.FC = () => {
       label: "Property Listing",
       icon: <ListIcon />,
       path: "/add",
-      roles: ["admin", "owner"],
+      roles: ["owner"],
     },
     {
       label: "Booked Rooms",
       icon: <CalendarTodayIcon />,
       path: "/booked",
-      roles: ["tenant", "admin"],
+      roles: ["tenant"],
     },
     {
       label: "Listed Properties",
       icon: <BusinessIcon />,
       path: "/listedProperty",
-      roles: ["owner", "admin"],
+      roles: ["owner"],
     },
     {
       label: "Table",
       icon: <TableRowsIcon />,
-      path: "/table",
+      path: "/adminTable",
       roles: ["admin"],
     },
   ];
@@ -124,9 +124,21 @@ const Header: React.FC = () => {
         <AppBar position="static" color="inherit" elevation={1}>
           <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
             {/* Logo */}
-            <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                cursor: "pointer",
+              }}
+              onClick={() => navigate("/")}
+            >
               <Box
-                sx={{ backgroundColor: "black", borderRadius: 2, p: 1, mr: 1 }}
+                sx={{
+                  backgroundColor: "black",
+                  borderRadius: 2,
+                  p: 1,
+                  mr: 1,
+                }}
               >
                 <HomeIcon sx={{ color: "white" }} />
               </Box>

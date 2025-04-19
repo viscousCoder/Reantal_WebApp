@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { APP_URL } from "../common/Constant";
+import { toast } from "react-toastify";
 
 const apiUrl = APP_URL;
 
@@ -41,8 +42,10 @@ export const createProperty = createAsyncThunk(
         headers: { "Content-Type": "multipart/form-data" },
       });
       navigate("/");
+      toast.success("Property created successfully");
       return response.data;
     } catch (error: any) {
+      toast.error("Failed to create property");
       return rejectWithValue(
         error.response?.data?.message || "Something went wrong"
       );

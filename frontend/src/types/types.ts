@@ -1,3 +1,5 @@
+import { Owner, User } from "./Admin";
+
 // src/types/types.ts
 export interface AuthResponse {
   success: boolean;
@@ -51,30 +53,30 @@ export interface ErrorResponse {
   };
 }
 
-interface User {
-  id: string;
-  fullName: string;
-  email: string;
-  phoneCode: string;
-  phoneNumber: string;
-  password: string;
-  agreeToTerms: boolean;
-  street: string;
-  city: string;
-  state: string;
-  zip: string;
-  country: string;
-  emailVerified: boolean;
-  phoneVerified: boolean;
-  userRole: "tenant" | "landlord" | "admin"; // Assuming possible roles
-  employment: string;
-  income: string;
-  rentalHistory: string;
-  profilePicture: string;
-  paymentMethod: string;
-  created_at: string | Date;
-  updated_at: string | Date;
-}
+// export interface User {
+//   id: string;
+//   fullName: string;
+//   email: string;
+//   phoneCode: string;
+//   phoneNumber: string;
+//   password: string;
+//   agreeToTerms: boolean;
+//   street: string;
+//   city: string;
+//   state: string;
+//   zip: string;
+//   country: string;
+//   emailVerified: boolean;
+//   phoneVerified: boolean;
+//   userRole: "tenant" | "landlord" | "admin"; // Assuming possible roles
+//   employment: string;
+//   income: string;
+//   rentalHistory: string;
+//   profilePicture: string;
+//   paymentMethod: string;
+//   created_at: string | Date;
+//   updated_at: string | Date;
+// }
 export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
@@ -86,4 +88,5 @@ export interface AuthState {
   formData: UserFormData;
   registeredUser: UserResponse | null;
   bookedRoom: any[];
+  userFullDetails: User | Owner | null;
 }

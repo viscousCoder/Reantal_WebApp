@@ -5,6 +5,7 @@ import cors from "cors";
 import authRoute from "./routes/auth";
 import ownerRoute from "./routes/owner";
 import paymentRoute from "./routes/payment";
+import adminRoute from "./routes/admin";
 import { getConnection } from "./database/db.config";
 import { handleAuthentication } from "./middleware/AuthMiddleware";
 
@@ -32,6 +33,7 @@ async function init() {
     app.use("/", authRoute);
     app.use("/", ownerRoute);
     app.use("/", paymentRoute);
+    app.use("/", adminRoute);
     app.listen(port, () => console.log("Server is running at port ", port));
   } catch (error) {
     console.log(`Error while connection ${error}`);

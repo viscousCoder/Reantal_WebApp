@@ -14,6 +14,10 @@ import Success from "../Payment/Success";
 import Cancel from "../Payment/Cancel";
 import BookedRooms from "../Booked/Booked";
 import ListedProperties from "../ListedProperty/ListedProperty";
+// import AdminTable from "../Table/AdminManagement";
+import AdminManagement from "../Table/AdminManagement";
+import Profile from "../Profile/Profile";
+import AdminProfile from "../Table/AdminProfile";
 
 function Rootfile() {
   const router = createBrowserRouter([
@@ -80,6 +84,22 @@ function Rootfile() {
         {
           path: "/listed/:propertyId",
           element: <RoomDetails />,
+        },
+        {
+          path: "/adminTable",
+          element: <AdminManagement />,
+        },
+        {
+          path: "/profile",
+          element: <Profile />,
+        },
+        {
+          path: "/property/:propertyId",
+          element: <RoomDetails />,
+        },
+        {
+          path: "/admin/tenantProfile",
+          element: <AdminProfile />,
         },
       ],
     },

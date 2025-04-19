@@ -63,3 +63,21 @@ export interface RegisterOwnerArgs {
   formData: OwnerFormData;
   navigate: (path: string) => void;
 }
+
+export interface Owner {
+  id: string;
+  fullName: string;
+  email: string;
+  phoneCode: string;
+  phoneNumber: string;
+  password: string;
+  agreeToTerms: boolean;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+  emailVerified: boolean;
+  phoneVerified: boolean;
+  profilePicture?: File | null;
+}

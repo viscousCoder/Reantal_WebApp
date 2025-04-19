@@ -68,7 +68,7 @@ const ListedProperties: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { currentOwnerLoading, currentOwnerProperties: properties } =
     useSelector((state: RootState) => state.owner);
-
+  console.log(properties, "data");
   const [page, setPage] = useState(1);
   const itemsPerPage = 4;
 
@@ -152,9 +152,9 @@ const ListedProperties: React.FC = () => {
         <Typography variant="h5" fontWeight={600}>
           My Listed Properties
         </Typography>
-        <Button variant="contained" color="primary">
+        {/* <Button variant="contained" color="primary">
           Add New Property
-        </Button>
+        </Button> */}
       </Box>
 
       {/* Responsive View */}

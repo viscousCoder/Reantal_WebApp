@@ -134,12 +134,14 @@ const PGList: React.FC = () => {
               mb: 4,
             }}
           >
-            <Typography variant="h4" component="h1" gutterBottom>
+            <Typography
+              variant="h4"
+              component="h1"
+              gutterBottom
+              sx={{ fontWeight: "bold" }}
+            >
               PG Listings
             </Typography>
-            <Button variant="contained" color="primary">
-              List Your Property
-            </Button>
           </Box>
           <Box sx={{ minHeight: "51rem" }}>
             <Grid container spacing={3}>

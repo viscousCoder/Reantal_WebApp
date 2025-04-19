@@ -10,9 +10,10 @@ import {
 import { APP_URL } from "../common/Constant";
 import { OwnerResponse, RegisterOwnerArgs } from "../types/owner";
 import { toast } from "react-toastify";
+import { Owner, User } from "../types/Admin";
 
 const apiUrl = APP_URL;
-// Define the user form data interface (based on your provided structure)
+
 interface UserFormData {
   fullName: string;
   email: string;
@@ -33,7 +34,6 @@ interface UserFormData {
   profilePictureFile?: File | null;
 }
 
-// Define the user response from the registration API
 interface UserResponse {
   id: string;
   fullName: string;
@@ -41,14 +41,12 @@ interface UserResponse {
   phoneNumber: string;
 }
 
-// Define the error response structure
 interface ErrorResponse {
   errors: {
     [key: string]: string;
   };
 }
 
-// Initial form data
 const initialFormData: UserFormData = {
   fullName: "",
   email: "",
@@ -69,7 +67,6 @@ const initialFormData: UserFormData = {
   profilePictureFile: null,
 };
 
-// Initial state
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
@@ -81,9 +78,9 @@ const initialState: AuthState = {
   formData: initialFormData,
   registeredUser: null,
   bookedRoom: [],
+  userFullDetails: null,
 };
 
-// Async thunk to send email OTP (unchanged)
 export const sendOtp = createAsyncThunk<
   AuthResponse,
   SendOtpPayload,
@@ -94,15 +91,16 @@ export const sendOtp = createAsyncThunk<
       email,
     });
     console.log(response.data, "email response");
+    toast.success("OTP sent successfully");
     return response.data;
   } catch (error: any) {
+    toast.error("Failed to send OTP");
     return rejectWithValue(
       error.response?.data?.message || "Failed to send OTP"
     );
   }
 });
 
-// Async thunk to send phone OTP (unchanged)
 export const sendPhoneOtp = createAsyncThunk<
   AuthResponse,
   SendPhoneOtpPayload,
@@ -112,15 +110,16 @@ export const sendPhoneOtp = createAsyncThunk<
     const response = await axios.post<AuthResponse>(`${apiUrl}/send-phone`, {
       phoneNumber,
     });
+    toast.success("Phone OTP sent successfully");
     return response.data;
   } catch (error: any) {
+    toast.error("Failed to send phone OTP");
     return rejectWithValue(
       error.response?.data?.message || "Failed to send phone OTP"
     );
   }
 });
 
-// Async thunk to verify OTP (unchanged)
 export const verifyOtp = createAsyncThunk<
   AuthResponse,
   VerifyOtpPayload,
@@ -139,7 +138,6 @@ export const verifyOtp = createAsyncThunk<
   }
 });
 
-// Async thunk for registering user
 interface RegisterArgs {
   formData: UserFormData;
   navigate: (path: string) => void;
@@ -162,7 +160,7 @@ export const registerUser = createAsyncThunk<
     });
 
     const response = await axios.post<{ message: string; user: UserResponse }>(
-      `${apiUrl}/register`, // Adjust port if needed
+      `${apiUrl}/register`,
       data,
       {
         headers: {
@@ -217,9 +215,12 @@ export const registerOwner = createAsyncThunk<
     });
 
     navigate("/login");
+    toast.success("Owner registration successful");
     return response.data.owner;
   } catch (error) {
+    toast.error("Owner registration failed");
     const axiosError = error as AxiosError<ErrorResponse>;
+
     return rejectWithValue(
       axiosError.response?.data || {
         errors: { server: "Failed to register owner" },
@@ -249,7 +250,6 @@ interface LoginResponse {
     email: string;
     token: string;
     userRole: string;
-    // Add more fields as needed
   };
 }
 
@@ -274,9 +274,11 @@ export const loginUser = createAsyncThunk<
     localStorage.setItem("id", response.data.userData.id);
     localStorage.setItem("userRole", response.data.userData.userRole);
     navigate("/");
+    toast.success("Login successful");
     return response.data.userData;
   } catch (error) {
     const axiosError = error as AxiosError<ErrorResponse>;
+    toast.error("Login failed");
     return rejectWithValue(
       axiosError.response?.data || {
         errors: { server: "Internal server error" },
@@ -346,11 +348,13 @@ export const bookProperty = createAsyncThunk(
       );
 
       if (response.status === 200) {
+        toast.success("Booking successful");
         return response.data;
       } else {
         return rejectWithValue("Booking failed.");
       }
     } catch (error) {
+      toast.error("Booking failed");
       console.error("Error booking property:", error);
       return rejectWithValue("Failed to book property");
     }
@@ -376,6 +380,30 @@ export const fetchBookedProperties = createAsyncThunk(
     } catch (error) {
       console.error("Error booking property:", error);
       return rejectWithValue("Failed to book property");
+    }
+  }
+);
+
+//getting full details
+export const fetchUserAllDetails = createAsyncThunk(
+  "userDetails/fetchUserDetails",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${apiUrl}/getFullDetails`, {
+        headers: {
+          "x-token": token,
+        },
+      });
+
+      if (response.status === 200) {
+        return response.data; // Assuming the response is the user object (User | Owner)
+      } else {
+        return rejectWithValue("Failed to fetch user details");
+      }
+    } catch (error: any) {
+      console.error("Error fetching user details:", error);
+      return rejectWithValue("Failed to fetch user details");
     }
   }
 );
@@ -571,6 +599,28 @@ const authSlice = createSlice({
           action.error.message ||
           "Booking failed";
       });
+
+    //getAll full details
+    builder
+      .addCase(fetchUserAllDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchUserAllDetails.fulfilled,
+        (state, action: PayloadAction<User | Owner>) => {
+          state.loading = false;
+          state.userFullDetails = action.payload;
+        }
+      )
+      .addCase(
+        fetchUserAllDetails.rejected,
+        (state, action: PayloadAction<any>) => {
+          state.loading = false;
+          state.error = action.payload;
+          state.userFullDetails = null;
+        }
+      );
   },
 });
 

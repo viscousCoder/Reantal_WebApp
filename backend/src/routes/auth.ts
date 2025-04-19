@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getAllProperties,
+  handleFullDetails,
   handleGetBookedProperty,
   handleGetDetails,
   handleGetProperty,
@@ -39,5 +40,6 @@ router.get("/property/:propertyId", handleGetProperty);
 
 router.put("/update/:propertyId", handleUpdateProperty);
 router.get("/get-booked-property", handleGetBookedProperty);
+router.get("/getFullDetails", handleFullDetails);
 
 export default router;

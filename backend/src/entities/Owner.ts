@@ -50,6 +50,9 @@ export class Owner {
   @Column()
   agreeToTerms!: boolean;
 
+  @Column({ default: false })
+  block!: boolean;
+
   @Column()
   profilePicture!: string;
 

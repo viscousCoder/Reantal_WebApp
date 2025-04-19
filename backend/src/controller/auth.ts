@@ -22,6 +22,10 @@ interface ExtendedOtpResponse extends OtpResponse {
   otp?: string;
 }
 
+/**
+ * @function handleSendEmailOtp
+ * @description Handles sending an OTP to the user's email address.
+ */
 export async function handleSendEmailOtp(
   req: Request,
   res: Response
@@ -29,7 +33,6 @@ export async function handleSendEmailOtp(
   try {
     const { email } = req.body as OtpRequestBody;
 
-    // Validate email
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       res.status(400).json({
         success: false,
@@ -38,13 +41,10 @@ export async function handleSendEmailOtp(
       return;
     }
 
-    // Generate OTP
     const otp = OtpUtil.generateOtp();
 
-    // Store OTP
     await OtpUtil.storeOtp(email, otp);
 
-    // Send email
     const emailSent = await mailService.sendOtpEmail(email, otp);
 
     if (!emailSent) {
@@ -54,7 +54,6 @@ export async function handleSendEmailOtp(
       } as ExtendedOtpResponse);
     }
 
-    // Success response with OTP
     res.status(200).json({
       success: true,
       message: "OTP sent successfully",
@@ -74,6 +73,10 @@ const client = twilio(
   process.env.TWILIO_AUTH_TOKEN!
 );
 
+/**
+ * @function handleSendPhoneOtp
+ * @description Handles sending an OTP to the user's phone number.
+ */
 export async function handleSendPhoneOtp(
   req: Request,
   res: Response
@@ -118,15 +121,17 @@ if (!accountSid || !authToken || !verifyServiceSid) {
   throw new Error("Missing required Twilio environment variables");
 }
 
+/**
+ * @function handleVerifyEmailOtp
+ * @description Handles verifying the OTP sent to the user's email address.
+ */
 export async function handleVerifyPhoneOtp(
   req: Request,
   res: Response
 ): Promise<void> {
   try {
-    // Extract phone number and OTP code from request body
     const { phoneNumber, code } = req.body;
 
-    // Validate input
     if (!phoneNumber || !code) {
       res.status(400).json({
         success: false,
@@ -135,12 +140,10 @@ export async function handleVerifyPhoneOtp(
       return;
     }
 
-    // Ensure phone number starts with country code
     const formattedPhoneNumber = phoneNumber.startsWith("+")
       ? phoneNumber
       : `+${phoneNumber}`;
 
-    // Verify OTP using Twilio
     const verificationCheck = await client.verify.v2
       .services(verifyServiceSid)
       .verificationChecks.create({
@@ -148,7 +151,6 @@ export async function handleVerifyPhoneOtp(
         code,
       });
 
-    // Check verification status
     if (verificationCheck.status === "approved") {
       res.status(200).json({
         success: true,
@@ -171,7 +173,10 @@ export async function handleVerifyPhoneOtp(
   }
 }
 
-//tentant registeration
+/**
+ * @function handleRegisterUser
+ * @description Handles user registration.
+ */
 export async function handleRegisterUser(
   req: Request,
   res: Response
@@ -212,7 +217,6 @@ export async function handleRegisterUser(
       return;
     }
 
-    // Check if passwords match
     if (password !== confirmPassword) {
       res
         .status(400)
@@ -221,7 +225,7 @@ export async function handleRegisterUser(
     }
 
     const AppDataSource = await getConnection();
-    // Check if email or phone number already exists
+
     const userRepository = AppDataSource.getRepository(User);
     const existingUser = await userRepository.findOne({
       where: [{ email }, { phoneNumber }],
@@ -258,14 +262,11 @@ export async function handleRegisterUser(
     user.income = income || null;
     user.rentalHistory = rentalHistory || null;
     user.paymentMethod = paymentMethod || null;
-    user.emailVerified = true; // Based on your sample data
-    user.phoneVerified = true; // Based on your sample data
+    user.emailVerified = true;
+    user.phoneVerified = true;
 
-    // if (req.file && typeof req.file.path === "string") {
-    //   user.profilePicture = req.file.path;
-    // }
     if (req.file) {
-      user.profilePicture = req.file.path; // Cloudinary URL
+      user.profilePicture = req.file.path;
     }
 
     // Save user to database
@@ -285,6 +286,11 @@ export async function handleRegisterUser(
     res.status(500).json({ errors: { server: "Internal server error" } });
   }
 }
+
+/**
+ * @function handleRegisterOwner
+ * @description Handles owner registration.
+ */
 
 export async function handleRegisterOwner(
   req: Request,
@@ -410,58 +416,10 @@ export async function handleRegisterOwner(
   }
 }
 
-// export async function handleLoginUser(
-//   req: Request,
-//   res: Response
-// ): Promise<void> {
-//   try {
-//     const { email, password,userRole } = req.body;
-
-//     if (!email || !password) {
-//       res
-//         .status(400)
-//         .json({ errors: { general: "Email and password are required" } });
-//       return;
-//     }
-
-//     const AppDataSource = await getConnection();
-//     const userRepository = AppDataSource.getRepository(User);
-
-//     const user = await userRepository.findOne({ where: { email } });
-
-//     if (!user) {
-//       res
-//         .status(401)
-//         .json({ errors: { general: "Invalid email or password" } });
-//       return;
-//     }
-
-//     // Compare password
-//     const isMatch = await bcrypt.compare(password, user.password);
-
-//     if (!isMatch) {
-//       res
-//         .status(401)
-//         .json({ errors: { general: "Invalid email or password" } });
-//       return;
-//     }
-
-//     const token = await handleGenerateToken(user);
-//     const userData = { ...user, token: token };
-
-//     // Login success
-//     res.status(200).json({
-//       message: "Login successful",
-//       userData,
-//     });
-//   } catch (error) {
-//     console.error("Login error:", error);
-//     res.status(500).json({ errors: { server: "Internal server error" } });
-//   }
-// }
-
-//login user
-
+/**
+ * @function handleLoginUser
+ * @description Handles user login.
+ *  */
 export async function handleLoginUser(
   req: Request,
   res: Response
@@ -483,7 +441,7 @@ export async function handleLoginUser(
     if (userRole === "tenant") {
       const userRepository = AppDataSource.getRepository(User);
       user = await userRepository.findOne({ where: { email } });
-    } else if (userRole === "owner") {
+    } else if (userRole === "owner" || userRole === "admin") {
       const ownerRepository = AppDataSource.getRepository(Owner);
       user = await ownerRepository.findOne({ where: { email } });
     } else {
@@ -496,6 +454,13 @@ export async function handleLoginUser(
     if (!user) {
       res.status(401).json({
         errors: { general: "Invalid email or password" },
+      });
+      return;
+    }
+
+    if (user.block) {
+      res.status(403).json({
+        errors: { general: "You have been blocked" },
       });
       return;
     }
@@ -522,34 +487,10 @@ export async function handleLoginUser(
   }
 }
 
-// export async function handleGetDetails(
-//   req: AuthenticatedRequest,
-//   res: Response
-// ): Promise<void> {
-//   const id = req.user?.id;
-//   const userRole = req.user?.userRole;
-//   if (!id) {
-//     res.status(401).json({ error: "Unauthorired: User is missing" });
-//   }
-//   try {
-//     const AppDataSource = await getConnection();
-//     const userRepo = AppDataSource.getRepository(User);
-//     const user = await userRepo.findOne({
-//       where: { id },
-//     });
-//     if (!user) {
-//       res.status(404).json({ error: "User not found" });
-//     } else {
-//       res.status(200).json(user);
-//     }
-//   } catch (error) {
-//     console.error("Error getting user details:", error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// }
-
-//to get all data
-
+/**
+ * @function handleGetDetails
+ * @description get user details
+ */
 export async function handleGetDetails(
   req: AuthenticatedRequest,
   res: Response
@@ -567,7 +508,7 @@ export async function handleGetDetails(
       user = await userRepo.findOne({
         where: { id },
       });
-    } else if (userRole === "owner") {
+    } else if (userRole === "owner" || userRole === "admin") {
       const ownerRepository = AppDataSource.getRepository(Owner);
       user = await ownerRepository.findOne({ where: { id } });
     } else {
@@ -588,6 +529,10 @@ export async function handleGetDetails(
   }
 }
 
+/**
+ * @function getAllProperties
+ * @description Fetches all properties from the database.
+ */
 export async function getAllProperties(
   req: Request,
   res: Response
@@ -729,5 +674,57 @@ export async function handleGetBookedProperty(
   } catch (error) {
     console.error("Error fetching booked properties:", error);
     res.status(500).json({ message: "Internal server error", error });
+  }
+}
+
+/**
+ *
+ * @function handleFullDetails
+ * @description Handles fetching full details of the user or owner even thought there booking property and listed property.
+ */
+export async function handleFullDetails(
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> {
+  const id = req.user?.id;
+  const userRole = req.user?.userRole;
+  if (!id) {
+    res.status(401).json({ error: "Unauthorired: User is missing" });
+  }
+  try {
+    const AppDataSource = await getConnection();
+    let user: User | Owner | null = null;
+    if (userRole === "tenant") {
+      const userRepo = AppDataSource.getRepository(User);
+      user = await userRepo.findOne({
+        where: { id },
+        relations: ["bookings", "bookings.property"],
+      });
+    } else if (userRole === "owner" || userRole === "admin") {
+      const ownerRepository = AppDataSource.getRepository(Owner);
+      user = await ownerRepository.findOne({
+        where: { id },
+        relations: [
+          "properties",
+          "properties.photos",
+          "properties.description",
+          "properties.policies",
+        ],
+      });
+    } else {
+      res.status(400).json({
+        errors: { general: "Invalid user role" },
+      });
+      return;
+    }
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+    } else {
+      res.status(200).json(user);
+    }
+  } catch (error) {
+    console.error("Error getting user details:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 }

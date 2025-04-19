@@ -53,6 +53,9 @@ export class User {
   @Column({ default: false })
   phoneVerified!: boolean;
 
+  @Column({ default: false })
+  block!: boolean;
+
   @Column({ default: "tenant" })
   userRole!: string;
 

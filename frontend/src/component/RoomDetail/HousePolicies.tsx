@@ -31,25 +31,6 @@ interface AdditionalPolicy {
   description: string;
 }
 
-// interface PropertyPolicies {
-//   petPolicy: string;
-//   smokingPolicy: string;
-//   noisePolicy: string;
-//   guestPolicy: string;
-//   petPolicyDescription: string;
-//   smokingPolicyDescription: string;
-//   additionalPolicies: AdditionalPolicy[];
-//   updated_at: string;
-// }
-
-// interface Property {
-//   policies: PropertyPolicies;
-// }
-
-// interface RootState {
-//   property: Property;
-// }
-
 interface RootState {
   property: {
     property: Property | null;
