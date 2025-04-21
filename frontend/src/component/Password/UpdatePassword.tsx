@@ -168,7 +168,7 @@ const UpdatePassword: React.FC = () => {
         </Box>
 
         <Grid container spacing={2}>
-          <Grid item xs={6}>
+          <Grid size={{ xs: 6 }}>
             <Button
               fullWidth
               variant="outlined"
@@ -177,7 +177,7 @@ const UpdatePassword: React.FC = () => {
               Cancel
             </Button>
           </Grid>
-          <Grid item xs={6}>
+          <Grid size={{ xs: 6 }}>
             <Button
               fullWidth
               variant="contained"
