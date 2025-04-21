@@ -397,13 +397,55 @@ export const fetchUserAllDetails = createAsyncThunk(
       });
 
       if (response.status === 200) {
-        return response.data; // Assuming the response is the user object (User | Owner)
+        return response.data;
       } else {
         return rejectWithValue("Failed to fetch user details");
       }
     } catch (error: any) {
       console.error("Error fetching user details:", error);
       return rejectWithValue("Failed to fetch user details");
+    }
+  }
+);
+
+//update password
+interface UpdatePasswordPayload {
+  oldPassword: string;
+  newPassword: string;
+}
+
+export const updatePassword = createAsyncThunk<
+  string,
+  UpdatePasswordPayload,
+  { rejectValue: string }
+>(
+  "password/updatePassword",
+  async (
+    { oldPassword, newPassword }: UpdatePasswordPayload,
+    { rejectWithValue }
+  ) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `${apiUrl}/update-password`,
+        {
+          oldPassword,
+          newPassword,
+        },
+        {
+          headers: {
+            "x-token": token,
+          },
+        }
+      );
+      toast.success("Password updated successfully");
+      return response.data.message;
+    } catch (error) {
+      toast.error("Failed to update password");
+      return rejectWithValue(
+        (axios.isAxiosError(error) && error.response?.data?.message) ||
+          "Something went wrong."
+      );
     }
   }
 );
@@ -617,10 +659,25 @@ const authSlice = createSlice({
         fetchUserAllDetails.rejected,
         (state, action: PayloadAction<any>) => {
           state.loading = false;
-          state.error = action.payload;
+          state.error = action.payload || null;
           state.userFullDetails = null;
         }
       );
+
+    //update password
+    builder
+      .addCase(updatePassword.pending, (state) => {
+        state.loading = true;
+        state.error = "";
+      })
+      .addCase(updatePassword.fulfilled, (state) => {
+        state.loading = false;
+        // state.successMessage = action.payload;
+      })
+      .addCase(updatePassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to update password";
+      });
   },
 });
 

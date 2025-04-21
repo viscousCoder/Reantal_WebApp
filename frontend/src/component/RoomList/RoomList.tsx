@@ -108,7 +108,6 @@ const PGList: React.FC = () => {
   };
 
   const handleClick = (pgId: string) => {
-    console.log(pgId, "id");
     localStorage.setItem("roomId", pgId);
     navigate(`/room-detail/${pgId}`);
   };
@@ -169,11 +168,11 @@ const PGList: React.FC = () => {
                 const moreCount =
                   pg?.description?.amenities.map((a: any) => a).length - 3;
 
-                console.log(
-                  visibleAmenities,
-                  "Data",
-                  pg?.description?.amenities
-                );
+                // console.log(
+                //   visibleAmenities,
+                //   "Data",
+                //   pg?.description?.amenities
+                // );
 
                 return (
                   <Grid size={{ xs: 12, sm: 6, md: 4 }} key={pg.id}>

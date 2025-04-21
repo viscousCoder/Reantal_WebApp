@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { MailService } from "../services/mail.service";
+import { MailService, PassMailService } from "../services/mail.service";
 import { OtpUtil } from "../utils/otp.util";
 import { OtpRequestBody, OtpResponse, PhoneOtpRequestBody } from "../types";
 import { SmsService } from "../services/sms.servise";
@@ -14,9 +14,14 @@ import { Property } from "../entities/Property";
 import { Booking } from "../entities/Booking";
 import { Owner } from "../entities/Owner";
 import cloudinary from "../config/cloudinary";
+import { v4 as uuidv4 } from "uuid";
+import { addMinutes } from "date-fns";
+import { PasswordResetToken } from "../entities/PasswordResetToken";
+
+const passMailService = new PassMailService();
 
 const mailService = new MailService();
-const smsService = new SmsService();
+// const smsService = new SmsService();
 
 interface ExtendedOtpResponse extends OtpResponse {
   otp?: string;
@@ -726,5 +731,183 @@ export async function handleFullDetails(
   } catch (error) {
     console.error("Error getting user details:", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+/**
+ * @function handleUpdatePassword
+ * @description Handles updating the user's password.
+ */
+export async function handleUpdatePassword(
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> {
+  try {
+    const AppDataSource = await getConnection();
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      res.status(400).json({ message: "Old and new passwords are required." });
+      return;
+    }
+
+    if (!req.user) {
+      res.status(401).json({ message: "Unauthorized: User is missing." });
+      return;
+    }
+    const { id: userId, userRole } = req.user;
+
+    if (userRole === "tenant") {
+      const userRepo = AppDataSource.getRepository(User);
+      const user = await userRepo.findOne({ where: { id: userId } });
+
+      if (!user) {
+        res.status(404).json({ message: "Tenant not found." });
+        return;
+      }
+
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!isMatch) {
+        res.status(401).json({ message: "Old password is incorrect." });
+        return;
+      }
+
+      user.password = await bcrypt.hash(newPassword, 10);
+      await userRepo.save(user);
+
+      res.status(200).json({ message: "Password updated successfully." });
+    } else if (userRole === "owner" || userRole === "admin") {
+      const ownerRepo = AppDataSource.getRepository(Owner);
+      const owner = await ownerRepo.findOne({ where: { id: userId } });
+
+      if (!owner) {
+        res.status(404).json({ message: "Owner not found." });
+        return;
+      }
+
+      const isMatch = await bcrypt.compare(oldPassword, owner.password);
+      if (!isMatch) {
+        res.status(401).json({ message: "Old password is incorrect." });
+        return;
+      }
+
+      owner.password = await bcrypt.hash(newPassword, 10);
+      await ownerRepo.save(owner);
+
+      res.status(200).json({ message: "Password updated successfully." });
+    } else {
+      res.status(403).json({ message: "Unauthorized role." });
+    }
+  } catch (error) {
+    console.error("Password update error:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+}
+
+/**
+ * @function handleSendPasswordResetLink
+ * @description Handles sending a password reset link to the user's email.
+ */
+export async function handleSendPasswordResetLink(
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> {
+  try {
+    const AppDataSource = await getConnection();
+    const { email, userRole } = req.body;
+
+    if (!email || !userRole || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      res.status(400).json({ message: "Invalid email or role" });
+      return;
+    }
+
+    let user: User | Owner | null = null;
+    const repo =
+      userRole === "tenant"
+        ? AppDataSource.getRepository(User)
+        : AppDataSource.getRepository(Owner);
+
+    user = await repo.findOne({ where: { email } });
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const token = uuidv4();
+    const expiresAt = addMinutes(new Date(), 15); // token valid for 15 minutes
+
+    const resetRepo = AppDataSource.getRepository(PasswordResetToken);
+    await resetRepo.save({ email, token, expiresAt, userRole });
+
+    const resetLink = `http://localhost:5173/reset-password?token=${token}`;
+
+    const emailSent = await passMailService.sendResetPasswordEmail(
+      email,
+      resetLink
+    );
+
+    if (!emailSent) {
+      res.status(500).json({ message: "Failed to send reset email" });
+      return;
+    }
+
+    res.status(200).json({ message: "Reset link sent successfully" });
+  } catch (error) {
+    console.error("Error in handleSendPasswordResetLink:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+/**
+ * @function handleResetPassword
+ * @description Handles resetting the user's password.
+ */
+export async function handleResetPassword(
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> {
+  try {
+    const { token, newPassword } = req.body;
+    const AppDataSource = await getConnection();
+
+    if (!token || !newPassword) {
+      res.status(400).json({ message: "Missing token or password" });
+      return;
+    }
+
+    const resetRepo = AppDataSource.getRepository(PasswordResetToken);
+    const record = await resetRepo.findOne({ where: { token } });
+
+    if (!record || record.expiresAt < new Date()) {
+      res.status(400).json({ message: "Invalid or expired token" });
+      return;
+    }
+
+    const repo =
+      record.userRole === "tenant"
+        ? AppDataSource.getRepository(User)
+        : AppDataSource.getRepository(Owner);
+
+    const user = await repo.findOne({ where: { email: record.email } });
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    if (record.userRole === "tenant") {
+      const tenantRepo = AppDataSource.getRepository(User);
+      await tenantRepo.save(user as User);
+    } else {
+      const ownerRepo = AppDataSource.getRepository(Owner);
+      await ownerRepo.save(user as Owner);
+    }
+    await resetRepo.delete({ token });
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    console.error("Error in handleResetPassword:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 }

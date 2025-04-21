@@ -102,6 +102,11 @@ const Login: React.FC = () => {
     }
   };
 
+  const handleNavigate = () => {
+    localStorage.setItem("userRole", userRole[tabValue]);
+    navigate("/forgot-password");
+  };
+
   return (
     <>
       {loading ? (
@@ -261,6 +266,21 @@ const Login: React.FC = () => {
                   readOnly: true,
                 }}
               />
+              <Typography
+                variant="body2"
+                sx={{
+                  mt: 1,
+                  textAlign: "right",
+                  cursor: "pointer",
+                  color: "primary.main",
+                  "&:hover": {
+                    textDecoration: "underline",
+                  },
+                }}
+                onClick={() => handleNavigate()}
+              >
+                Forgot Password?
+              </Typography>
 
               <Button
                 variant="contained"

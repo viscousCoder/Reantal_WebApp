@@ -10,7 +10,7 @@ import Loading from "../Loading/Loading";
 
 const AdminManagement: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, users, updateLoading } = useSelector(
+  const { loading, updateLoading } = useSelector(
     (state: RootState) => state.admin
   );
   const [activeTab, setActiveTab] = useState<"tenant" | "owner" | "admin">(
@@ -18,7 +18,6 @@ const AdminManagement: React.FC = () => {
   );
   const [toggle, setToggle] = useState(false);
 
-  console.log(users, "data");
   const handleTabChange = (
     _: React.SyntheticEvent,
     newValue: "tenant" | "owner" | "admin"

@@ -4,6 +4,7 @@ import ownerReducer from "./ownerSlice";
 import propertyReducer from "./propertySlice";
 import paymentReducer from "./paymentSlice";
 import adminReducer from "./adminSlice";
+import passwordReducer from "./passwordResetSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     property: propertyReducer,
     payment: paymentReducer,
     admin: adminReducer,
+    password: passwordReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

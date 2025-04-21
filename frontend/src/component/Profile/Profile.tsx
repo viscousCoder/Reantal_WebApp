@@ -30,7 +30,6 @@ const Profile: React.FC = () => {
     (state: RootState) => state.auth
   );
 
-  console.log(user, "History");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -106,128 +105,23 @@ const Profile: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Bookings */}
-
-          {/* <Card>
+          {/* Update Password */}
+          <Card sx={{ mb: 3 }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                <CalendarTodayIcon sx={{ verticalAlign: "middle", mr: 1 }} />{" "}
-                Your Listed Property
-              </Typography>
-
-              {(user?.userRole === "owner" || user?.userRole === "admin") &&
-              user?.properties?.length === 0 ? (
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "200px",
-                    backgroundColor: "#f5f5f5",
-                    borderRadius: "8px",
-                    textAlign: "center",
-                  }}
-                >
-                  <Typography variant="h6" color="textSecondary">
-                    You have no bookings at the moment.
-                  </Typography>
-                </Box>
-              ) : (
-                <Grid container spacing={2}>
-                  {(user?.userRole === "owner" || user?.userRole === "admin") &&
-                    user?.properties?.map((listed) => {
-                      let availability = "Available";
-                      let availabilityColor = "#e0f7fa";
-                      let availabilityTextColor = "#00acc1";
-                      const noOfRooms = listed.noOfSet;
-                      if (noOfRooms === 0) {
-                        availability = "Booked";
-                        availabilityColor = "#ffebee";
-                        availabilityTextColor = "#f44336";
-                      } else if (noOfRooms <= 2) {
-                        availability = "Few Rooms Left";
-                        availabilityColor = "#fff3e0";
-                        availabilityTextColor = "#ff9800";
-                      }
-                      return (
-                        <Grid size={{ xs: 12, md: 4 }} key={listed.id}>
-                          <Card
-                            sx={{ display: "flex", flexDirection: "column" }}
-                          >
-                            <img
-                              src={listed.photos[0]?.url}
-                              style={{
-                                width: "100%",
-                                height: 200,
-                                objectFit: "cover",
-                              }}
-                            />
-                            <CardContent sx={{ minHeight: "8.5rem" }}>
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                }}
-                              >
-                                <Box>
-                                  <Typography
-                                    variant="subtitle1"
-                                    fontWeight={600}
-                                  >
-                                    {listed.description.title}
-                                  </Typography>
-                                  <Typography>
-                                    Listed Date:{" "}
-                                    {new Date(
-                                      listed.created_at
-                                    ).toLocaleDateString()}
-                                  </Typography>
-                                  <Typography>
-                                    Rent: ₹{listed.rent}/month
-                                  </Typography>
-                                </Box>
-                                <Chip
-                                  label={availability}
-                                  size="small"
-                                  sx={{
-                                    backgroundColor: availabilityColor,
-                                    color: availabilityTextColor,
-                                    fontSize: "12px",
-                                  }}
-                                />
-                              </Box>
-                            </CardContent>
-                            <CardActionArea>
-                              <CardActions>
-                                <Button
-                                  variant="contained"
-                                  fullWidth
-                                  sx={{
-                                    backgroundColor: "#000",
-                                    color: "#fff",
-                                    borderRadius: "8px",
-                                    textTransform: "none",
-                                    padding: "8px 16px",
-                                    "&:hover": {
-                                      backgroundColor: "#333",
-                                    },
-                                  }}
-                                  onClick={() =>
-                                    navigate(`/property/${listed.id}`)
-                                  }
-                                >
-                                  View Details
-                                </Button>
-                              </CardActions>
-                            </CardActionArea>
-                          </Card>
-                        </Grid>
-                      );
-                    })}
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => navigate("/update-password")}
+                  >
+                    Update Password
+                  </Button>
                 </Grid>
-              )}
+              </Grid>
             </CardContent>
-          </Card> */}
+          </Card>
+
+          {/* Bookings */}
 
           <Card>
             <CardContent>

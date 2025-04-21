@@ -81,7 +81,7 @@ const TenantTable: React.FC<TenantTableProps> = ({ setToggle }) => {
 
   const handleEditSave = async () => {
     // API call to update tenant
-    console.log("Updating tenant:", selectedTenant);
+
     await dispatch(
       updateUserBlockStatus({
         userId: selectedTenant?.id || "",
@@ -98,7 +98,7 @@ const TenantTable: React.FC<TenantTableProps> = ({ setToggle }) => {
     await dispatch(
       deleteUser({ userId: selectedTenant?.id || "", userRole: "tenant" })
     );
-    console.log("Deleting tenant:", selectedTenant);
+
     setDeleteDialogOpen(false);
     setToggle((prev) => !prev);
   };

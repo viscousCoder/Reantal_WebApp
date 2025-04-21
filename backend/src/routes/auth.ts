@@ -8,8 +8,11 @@ import {
   handleLoginUser,
   handleRegisterOwner,
   handleRegisterUser,
+  handleResetPassword,
   handleSendEmailOtp,
+  handleSendPasswordResetLink,
   handleSendPhoneOtp,
+  handleUpdatePassword,
   handleUpdateProperty,
   handleVerifyPhoneOtp,
 } from "../controller/auth";
@@ -41,5 +44,9 @@ router.get("/property/:propertyId", handleGetProperty);
 router.put("/update/:propertyId", handleUpdateProperty);
 router.get("/get-booked-property", handleGetBookedProperty);
 router.get("/getFullDetails", handleFullDetails);
+
+router.post("/update-password", handleUpdatePassword);
+router.post("/reset-password", handleSendPasswordResetLink);
+router.post("/reset-password/:token", handleResetPassword);
 
 export default router;

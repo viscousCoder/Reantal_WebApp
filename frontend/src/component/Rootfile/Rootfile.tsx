@@ -18,6 +18,9 @@ import ListedProperties from "../ListedProperty/ListedProperty";
 import AdminManagement from "../Table/AdminManagement";
 import Profile from "../Profile/Profile";
 import AdminProfile from "../Table/AdminProfile";
+import ForgotPassword from "../Password/ForgotPassword";
+import UpdatePassword from "../Password/UpdatePassword";
+import CreatePassword from "../Password/CreatePassword";
 
 function Rootfile() {
   const router = createBrowserRouter([
@@ -39,6 +42,14 @@ function Rootfile() {
     {
       path: "/Login",
       element: <Login />,
+    },
+    {
+      path: "/forgot-password",
+      element: <ForgotPassword />,
+    },
+    {
+      path: "/reset-password",
+      element: <CreatePassword />,
     },
     {
       path: "/",
@@ -100,6 +111,11 @@ function Rootfile() {
         {
           path: "/admin/tenantProfile",
           element: <AdminProfile />,
+        },
+
+        {
+          path: "/update-password",
+          element: <UpdatePassword />,
         },
       ],
     },
