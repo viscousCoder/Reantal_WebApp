@@ -121,10 +121,8 @@ const OwnerSignup: React.FC = () => {
 
   // Validation Functions
   const validateFullName = (name: string): string | null => {
-    const nameRegex = /^(\w+\s+\w+.*)$/;
-    return nameRegex.test(name)
-      ? null
-      : "Full name must contain at least two words";
+    const nameRegex = /^(\w+.*)$/;
+    return nameRegex.test(name) ? null : "Enter your name";
   };
 
   const validateEmail = (email: string): string | null => {
@@ -159,14 +157,20 @@ const OwnerSignup: React.FC = () => {
     return zipRegex.test(zip) ? null : "Zip code must be 6 digits";
   };
 
+  console.log(formData);
   // Handle Input Change with Validation
   const handleChange =
     (field: keyof FormData) =>
     (
       event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any
     ) => {
-      const value =
+      let value =
         field === "agreeToTerms" ? event.target.checked : event.target.value;
+
+      if (field === "email" && value) {
+        value = value.charAt(0).toLowerCase() + value.slice(1);
+      }
+
       let errors = { ...formData.errors };
 
       switch (field) {

@@ -34,6 +34,7 @@ const CreatePassword: React.FC = () => {
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -109,7 +110,7 @@ const CreatePassword: React.FC = () => {
         />
         <TextField
           fullWidth
-          type={showPassword ? "text" : "password"}
+          type={showConfirmPassword ? "text" : "password"}
           label="Confirm Password"
           value={confirmPassword}
           onChange={handleConfirmPasswordChange}
@@ -120,10 +121,10 @@ const CreatePassword: React.FC = () => {
             endAdornment: (
               <InputAdornment position="end">
                 <IconButton
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   edge="end"
                 >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
             ),

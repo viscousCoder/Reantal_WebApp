@@ -75,7 +75,7 @@ interface FormData {
   errors: Record<string, string>; // Dynamic error messages
   userRole: string;
   rentalFiles: File[] | null;
-  paymentMethod: "card" | "upi" | "";
+  paymentMethod: "Card" | "UPI" | "";
   cardDetails: CardDetails;
   upiId: string;
 }
@@ -154,9 +154,7 @@ const TenantSignup: React.FC = () => {
   // Validation Functions
   const validateFullName = (name: string): string | null => {
     const nameRegex = /^(\w+.*)$/;
-    return nameRegex.test(name)
-      ? null
-      : "Full name must contain at least two words";
+    return nameRegex.test(name) ? null : "Enter your name";
   };
 
   const validateEmail = (email: string): string | null => {
@@ -354,7 +352,7 @@ const TenantSignup: React.FC = () => {
       case 5:
         if (!formData.paymentMethod) {
           errors.paymentMethod = "Choose a payment method";
-        } else if (formData.paymentMethod === "card") {
+        } else if (formData.paymentMethod === "Card") {
           errors.cardNumber =
             validateCardNumber(formData.cardDetails.cardNumber) || "";
           errors.cardHolder = formData.cardDetails.cardHolder ? "" : "Required";
@@ -362,7 +360,7 @@ const TenantSignup: React.FC = () => {
           errors.cvv = validateCVV(formData.cardDetails.cvv) || "";
           errors.bankName = formData.cardDetails.bankName ? "" : "Required";
           errors.ifsc = validateIFSC(formData.cardDetails.ifsc) || "";
-        } else if (formData.paymentMethod === "upi") {
+        } else if (formData.paymentMethod === "UPI") {
           errors.upiId = validateUpi(formData.upiId) || "";
         }
         return Object.values(errors).every((e) => !e);
@@ -406,7 +404,7 @@ const TenantSignup: React.FC = () => {
       //   : "Payment method is required";
       if (!formData.paymentMethod) {
         errors.paymentMethod = "Choose a payment method";
-      } else if (formData.paymentMethod === "card") {
+      } else if (formData.paymentMethod === "Card") {
         errors.cardNumber =
           validateCardNumber(formData.cardDetails.cardNumber) || "";
         errors.cardHolder = formData.cardDetails.cardHolder ? "" : "Required";
@@ -414,7 +412,7 @@ const TenantSignup: React.FC = () => {
         errors.cvv = validateCVV(formData.cardDetails.cvv) || "";
         errors.bankName = formData.cardDetails.bankName ? "" : "Required";
         errors.ifsc = validateIFSC(formData.cardDetails.ifsc) || "";
-      } else if (formData.paymentMethod === "upi") {
+      } else if (formData.paymentMethod === "UPI") {
         errors.upiId = validateUpi(formData.upiId) || "";
       }
     }
@@ -443,10 +441,10 @@ const TenantSignup: React.FC = () => {
           rentalFiles: formData.rentalFiles || null,
           paymentMethod: formData.paymentMethod,
           cardDetails:
-            formData.paymentMethod === "card"
+            formData.paymentMethod === "Card"
               ? formData.cardDetails
               : undefined,
-          upiId: formData.paymentMethod === "upi" ? formData.upiId : undefined,
+          upiId: formData.paymentMethod === "UPI" ? formData.upiId : undefined,
         };
 
         dispatch(registerUser({ formData: userFormData, navigate }));
@@ -1132,18 +1130,18 @@ const TenantSignup: React.FC = () => {
                   onChange={(e) => {
                     setFormData({
                       ...formData,
-                      paymentMethod: e.target.value as "card" | "upi",
+                      paymentMethod: e.target.value as "Card" | "UPI",
                       errors: { ...formData.errors, paymentMethod: "" },
                     });
                   }}
                 >
                   <FormControlLabel
-                    value="card"
+                    value="Card"
                     control={<Radio />}
                     label="Debit / Credit Card"
                   />
                   <FormControlLabel
-                    value="upi"
+                    value="UPI"
                     control={<Radio />}
                     label="Online (UPI)"
                   />
@@ -1155,7 +1153,7 @@ const TenantSignup: React.FC = () => {
                 )}
 
                 {/* Card form */}
-                {formData.paymentMethod === "card" && (
+                {formData.paymentMethod === "Card" && (
                   <>
                     <TextField
                       label="Card Number"
@@ -1224,7 +1222,7 @@ const TenantSignup: React.FC = () => {
                 )}
 
                 {/* UPI form */}
-                {formData.paymentMethod === "upi" && (
+                {formData.paymentMethod === "UPI" && (
                   <TextField
                     label="UPI ID"
                     fullWidth

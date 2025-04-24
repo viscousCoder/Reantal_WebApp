@@ -12,6 +12,9 @@ import {
   CardActionArea,
   CardActions,
   Button,
+  Stack,
+  styled,
+  CardMedia,
 } from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
@@ -22,6 +25,24 @@ import { AppDispatch, RootState } from "../../store/store";
 import { fetchUserAllDetails } from "../../store/AuthSlice";
 import Loading from "../Loading/Loading";
 import { useNavigate } from "react-router-dom";
+import AssuredWorkloadIcon from "@mui/icons-material/AssuredWorkload";
+import SyncLockIcon from "@mui/icons-material/SyncLock";
+import HistoryIcon from "@mui/icons-material/History";
+import { Photo } from "../../types/Admin";
+import PersonIcon from "@mui/icons-material/Person";
+
+const AdditionalImageCard = styled(Card)(({ theme }) => ({
+  borderRadius: "12px",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+  position: "relative",
+  cursor: "pointer",
+  flexShrink: 0,
+  width: 120,
+  [theme.breakpoints.down("sm")]: {
+    height: 100,
+    width: 150, // Slightly smaller width on small screens
+  },
+}));
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
@@ -36,6 +57,10 @@ const Profile: React.FC = () => {
   useEffect(() => {
     dispatch(fetchUserAllDetails());
   }, []);
+
+  const handleClick = (url: string) => {
+    window.open(url);
+  };
 
   return (
     <>
@@ -60,7 +85,11 @@ const Profile: React.FC = () => {
           <Box>
             <Typography variant="h5">{user?.fullName}</Typography>
             <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
-              <Chip label={user?.userRole} color="primary" />
+              <Chip
+                icon={<PersonIcon />}
+                label={user?.userRole}
+                color="primary"
+              />
               <Chip
                 icon={<EmailIcon />}
                 label="Email"
@@ -99,25 +128,131 @@ const Profile: React.FC = () => {
                   Location: {user?.city}, {user?.state} {user?.zip}
                 </Typography>
               </Grid>
+              {user && "paymentMethod" in user && (
+                <>
+                  {user.paymentMethod === "Card" ? (
+                    <>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Typography variant="h6" gutterBottom>
+                          <AssuredWorkloadIcon
+                            sx={{ verticalAlign: "middle", mr: 1 }}
+                          />{" "}
+                          Bank Info
+                        </Typography>
+                        <Typography>
+                          Payment Method: {user?.paymentMethod}
+                        </Typography>
+                        <Typography>
+                          Account Number: {user?.paymentMethods[0].cardNumber}
+                        </Typography>
+                        <Typography>
+                          IFSC Number: {user?.paymentMethods[0].ifsc}
+                        </Typography>
+                      </Grid>
+                    </>
+                  ) : (
+                    <>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Typography variant="h6" gutterBottom>
+                          <AssuredWorkloadIcon
+                            sx={{ verticalAlign: "middle", mr: 1 }}
+                          />{" "}
+                          Payment Info
+                        </Typography>
+                        <Typography>
+                          Payment Method: {user?.paymentMethod}
+                        </Typography>
+                        <Typography>
+                          Upi Id:{" "}
+                          {user?.paymentMethods.length != 0
+                            ? user?.paymentMethods[0]?.upiId
+                            : "N/A"}
+                        </Typography>
+                      </Grid>
+                    </>
+                  )}
+                </>
+              )}
             </Grid>
           </CardContent>
         </Card>
 
-        {/* Update Password */}
+        {/* Rental History  */}
         <Card sx={{ mb: 3 }}>
           <CardContent>
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate("/update-password")}
-                >
-                  Update Password
-                </Button>
-              </Grid>
-            </Grid>
+            {user && "paymentMethod" in user && (
+              <>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Typography variant="h6" gutterBottom>
+                    <HistoryIcon sx={{ verticalAlign: "middle", mr: 1 }} />{" "}
+                    Rental History
+                  </Typography>
+                  <Stack direction="row" spacing={2} sx={{ overflow: "auto" }}>
+                    {user?.history.length === 0 ? (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "200px",
+                          backgroundColor: "#f5f5f5",
+                          borderRadius: "8px",
+                          textAlign: "center",
+                          width: "100%",
+                        }}
+                      >
+                        <Typography variant="h6" color="textSecondary">
+                          No Rented History
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <>
+                        {user?.history?.map((images: Photo, index: any) => (
+                          <AdditionalImageCard key={index}>
+                            <CardMedia
+                              component={"img"}
+                              image={images.url}
+                              onClick={() => handleClick(images.url)}
+                            />
+                          </AdditionalImageCard>
+                        ))}
+                      </>
+                    )}
+                  </Stack>
+                </Grid>
+              </>
+            )}
           </CardContent>
         </Card>
+
+        {/* Update Password */}
+        {localStorage.getItem("id") === user?.id && (
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                <SyncLockIcon sx={{ verticalAlign: "middle", mr: 1 }} />{" "}
+                Password Update
+              </Typography>
+
+              <Typography variant="body2" sx={{ mb: 2 }}>
+                It's a good idea to update your password regularly to keep your
+                account secure. Click the button below to change your current
+                password.
+              </Typography>
+
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => navigate("/update-password")}
+                  >
+                    Update Password
+                  </Button>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Bookings */}
 
@@ -307,29 +442,29 @@ const Profile: React.FC = () => {
                             />
                           </Box>
                         </CardContent>
-                        <CardActionArea>
-                          <CardActions>
-                            <Button
-                              variant="contained"
-                              fullWidth
-                              sx={{
-                                backgroundColor: "#000",
-                                color: "#fff",
-                                borderRadius: "8px",
-                                textTransform: "none",
-                                padding: "8px 16px",
-                                "&:hover": {
-                                  backgroundColor: "#333",
-                                },
-                              }}
-                              onClick={() =>
-                                navigate(`/property/${booking.property.id}`)
-                              }
-                            >
-                              View Details
-                            </Button>
-                          </CardActions>
-                        </CardActionArea>
+                        {/* <CardActionArea> */}
+                        {/* <CardActions> */}
+                        <Button
+                          variant="contained"
+                          fullWidth
+                          sx={{
+                            backgroundColor: "#000",
+                            color: "#fff",
+                            borderRadius: "8px",
+                            textTransform: "none",
+                            padding: "8px 16px",
+                            "&:hover": {
+                              backgroundColor: "#333",
+                            },
+                          }}
+                          onClick={() =>
+                            navigate(`/property/${booking.property.id}`)
+                          }
+                        >
+                          View Details
+                        </Button>
+                        {/* </CardActions> */}
+                        {/* </CardActionArea> */}
                       </Card>
                     </Grid>
                   ))}

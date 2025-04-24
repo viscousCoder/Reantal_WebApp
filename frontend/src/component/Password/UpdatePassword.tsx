@@ -13,6 +13,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store/store";
 import { updatePassword } from "../../store/AuthSlice";
+import { useNavigate } from "react-router-dom";
 
 const validatePassword = (password: string): string | null => {
   const passwordRegex =
@@ -24,6 +25,7 @@ const validatePassword = (password: string): string | null => {
 
 const UpdatePassword: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -33,6 +35,8 @@ const UpdatePassword: React.FC = () => {
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleTogglePasswordVisibility = () => setShowPassword((show) => !show);
 
@@ -110,7 +114,7 @@ const UpdatePassword: React.FC = () => {
             endAdornment: (
               <InputAdornment position="end">
                 <IconButton onClick={handleTogglePasswordVisibility} edge="end">
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                  {!showPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
             ),
@@ -119,7 +123,7 @@ const UpdatePassword: React.FC = () => {
 
         <TextField
           fullWidth
-          type={showPassword ? "text" : "password"}
+          type={showNewPassword ? "text" : "password"}
           label="New Password"
           value={newPassword}
           onChange={handleNewPasswordChange}
@@ -129,8 +133,11 @@ const UpdatePassword: React.FC = () => {
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton onClick={handleTogglePasswordVisibility} edge="end">
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                <IconButton
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  edge="end"
+                >
+                  {!showNewPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
             ),
@@ -139,7 +146,7 @@ const UpdatePassword: React.FC = () => {
 
         <TextField
           fullWidth
-          type={showPassword ? "text" : "password"}
+          type={showConfirmPassword ? "text" : "password"}
           label="Confirm New Password"
           value={confirmPassword}
           onChange={handleConfirmPasswordChange}
@@ -149,8 +156,11 @@ const UpdatePassword: React.FC = () => {
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton onClick={handleTogglePasswordVisibility} edge="end">
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                <IconButton
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  edge="end"
+                >
+                  {!showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
             ),
@@ -203,8 +213,9 @@ const UpdatePassword: React.FC = () => {
           textAlign="center"
           mt={2}
           sx={{ cursor: "pointer" }}
+          onClick={() => navigate("/profile")}
         >
-          Back to Create Password
+          Back to Profile Page
         </Typography>
       </Paper>
     </Box>

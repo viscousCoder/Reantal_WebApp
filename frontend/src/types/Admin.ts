@@ -31,8 +31,10 @@ export interface User {
   income?: string;
   rentalHistory?: string;
   profilePicture: string;
-  paymentMethod?: string;
+  paymentMethod: "Card" | "UPI";
   bookings: Booking[];
+  history: Photo[];
+  paymentMethods: Card[];
   created_at: string;
   updated_at: string;
 }
@@ -101,6 +103,18 @@ export interface Property {
   policies: Policy;
 }
 
+export interface Card {
+  id: string;
+  type: "Card" | "UPI";
+  cardNumber: string;
+  cardHolder: string;
+  bankName: string;
+  ifsc: string;
+  upiId: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Owner {
   id: string;
   fullName: string;
@@ -128,9 +142,11 @@ export interface Owner {
   verifiedPhoneOtp?: string;
   userRole: "owner" | "admin";
   properties: Property[];
+
   created_at: string;
   updated_at: string;
 }
+
 export interface Admin {
   id: string;
   fullName: string;

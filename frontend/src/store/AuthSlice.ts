@@ -270,7 +270,7 @@ export const registerUser = createAsyncThunk<
         data.append("profilePicture", value);
       } else if (
         key === "cardDetails" &&
-        formData.paymentMethod === "card" &&
+        formData.paymentMethod === "Card" &&
         typeof value === "object"
       ) {
         Object.entries(value).forEach(([cardKey, cardValue]) => {

@@ -47,7 +47,7 @@ const PGCard = styled(Card)(({ theme }) => ({
 
 const PGList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { propertyLoading, properties: dummyPGData } = useSelector(
+  const { loading, properties: dummyPGData } = useSelector(
     (state: RootState) => state.property
   );
 
@@ -118,7 +118,7 @@ const PGList: React.FC = () => {
       {/* {propertyLoading ? (
         <Loading />
       ) : ( */}
-      {propertyLoading && <Loading />}
+      {loading && <Loading />}
       <Container sx={{ maxWidth: "1600px !important" }}>
         <Box
           sx={{

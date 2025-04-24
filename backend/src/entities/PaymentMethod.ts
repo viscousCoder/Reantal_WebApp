@@ -12,7 +12,7 @@ import { User } from "./Users";
 export class PaymentMethod {
   @PrimaryGeneratedColumn("uuid") id!: string;
 
-  @Column() type!: "card" | "upi";
+  @Column() type!: "Card" | "UPI";
 
   @Column({ nullable: true }) cardNumber!: string; // **** **** **** 1234
   @Column({ nullable: true }) cardHolder!: string;

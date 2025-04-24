@@ -483,7 +483,7 @@ export async function handleRegisterUser(
     const pm = new PaymentMethod();
     pm.user = user;
 
-    if (paymentMethod === "card") {
+    if (paymentMethod === "Card") {
       // Validate required fields for card
       if (!cardNumber || !cardHolder || !expiry || !cvv || !bankName || !ifsc) {
         res
@@ -492,14 +492,14 @@ export async function handleRegisterUser(
         return;
       }
 
-      pm.type = "card";
+      pm.type = "Card";
       pm.cardHolder = cardHolder;
       pm.cardNumber = cardNumber;
       // pm.expiry = expiry;
       // pm.cvv = cvv;
       pm.bankName = bankName;
       pm.ifsc = ifsc;
-    } else if (paymentMethod === "upi") {
+    } else if (paymentMethod === "UPI") {
       if (!upiId) {
         res
           .status(400)
@@ -507,7 +507,7 @@ export async function handleRegisterUser(
         return;
       }
 
-      pm.type = "upi";
+      pm.type = "UPI";
       pm.upiId = upiId;
     }
 
