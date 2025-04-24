@@ -118,109 +118,107 @@ const Header: React.FC = () => {
 
   return (
     <>
-      {loading ? (
-        <Loading />
-      ) : (
-        <AppBar position="static" color="inherit" elevation={1}>
-          <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-            {/* Logo */}
+      {loading && <Loading />}
+
+      <AppBar position="static" color="inherit" elevation={1}>
+        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+          {/* Logo */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              cursor: "pointer",
+            }}
+            onClick={() => navigate("/")}
+          >
             <Box
               sx={{
-                display: "flex",
-                alignItems: "center",
-                cursor: "pointer",
+                backgroundColor: "black",
+                borderRadius: 2,
+                p: 1,
+                mr: 1,
               }}
-              onClick={() => navigate("/")}
             >
-              <Box
-                sx={{
-                  backgroundColor: "black",
-                  borderRadius: 2,
-                  p: 1,
-                  mr: 1,
-                }}
-              >
-                <HomeIcon sx={{ color: "white" }} />
-              </Box>
-              <Box>
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: "bold", lineHeight: 1 }}
-                >
-                  StayEase
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Your Home Away From Home
-                </Typography>
-              </Box>
+              <HomeIcon sx={{ color: "white" }} />
             </Box>
+            <Box>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: "bold", lineHeight: 1 }}
+              >
+                StayEase
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Your Home Away From Home
+              </Typography>
+            </Box>
+          </Box>
 
-            {/* Desktop Menu */}
-            {!isMobile && (
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                {renderMenuItems()}
-                <IconButton onClick={handleProfileClick} sx={{ ml: 2 }}>
-                  <Avatar src={user?.profilePicture || "/profile.jpg"} />
-                </IconButton>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleMenuClose}
-                >
-                  <MenuItem onClick={() => navigate("/profile")}>
-                    Profile
-                  </MenuItem>
-                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                </Menu>
-              </Box>
-            )}
+          {/* Desktop Menu */}
+          {!isMobile && (
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              {renderMenuItems()}
+              <IconButton onClick={handleProfileClick} sx={{ ml: 2 }}>
+                <Avatar src={user?.profilePicture || "/profile.jpg"} />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+              >
+                <MenuItem onClick={() => navigate("/profile")}>
+                  Profile
+                </MenuItem>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              </Menu>
+            </Box>
+          )}
 
-            {/* Mobile Menu */}
-            {isMobile && (
-              <>
-                <IconButton onClick={() => setDrawerOpen(true)}>
-                  <MenuIcon />
-                </IconButton>
-                <Drawer
-                  anchor="left"
-                  open={drawerOpen}
-                  onClose={() => setDrawerOpen(false)}
+          {/* Mobile Menu */}
+          {isMobile && (
+            <>
+              <IconButton onClick={() => setDrawerOpen(true)}>
+                <MenuIcon />
+              </IconButton>
+              <Drawer
+                anchor="left"
+                open={drawerOpen}
+                onClose={() => setDrawerOpen(false)}
+              >
+                <Box
+                  sx={{ width: 250 }}
+                  role="presentation"
+                  onClick={() => setDrawerOpen(false)}
                 >
-                  <Box
-                    sx={{ width: 250 }}
-                    role="presentation"
-                    onClick={() => setDrawerOpen(false)}
-                  >
-                    <List>
-                      {filteredMenu.map((item) => (
-                        <ListItemButton
-                          key={item.label}
-                          onClick={() => navigate(item.path)}
-                          selected={location.pathname === item.path}
-                        >
-                          <Box sx={{ display: "flex", alignItems: "center" }}>
-                            <item.icon.type sx={{ mr: 1 }} />
-                            <ListItemText primary={item.label} />
-                          </Box>
-                        </ListItemButton>
-                      ))}
+                  <List>
+                    {filteredMenu.map((item) => (
                       <ListItemButton
-                        onClick={() => navigate("/profile")}
-                        selected={location.pathname === "/profile"}
+                        key={item.label}
+                        onClick={() => navigate(item.path)}
+                        selected={location.pathname === item.path}
                       >
-                        <ListItemText primary="Profile" />
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <item.icon.type sx={{ mr: 1 }} />
+                          <ListItemText primary={item.label} />
+                        </Box>
                       </ListItemButton>
-                      <ListItemButton onClick={handleLogout}>
-                        <ListItemText primary="Logout" />
-                      </ListItemButton>
-                    </List>
-                  </Box>
-                </Drawer>
-              </>
-            )}
-          </Toolbar>
-        </AppBar>
-      )}
+                    ))}
+                    <ListItemButton
+                      onClick={() => navigate("/profile")}
+                      selected={location.pathname === "/profile"}
+                    >
+                      <ListItemText primary="Profile" />
+                    </ListItemButton>
+                    <ListItemButton onClick={handleLogout}>
+                      <ListItemText primary="Logout" />
+                    </ListItemButton>
+                  </List>
+                </Box>
+              </Drawer>
+            </>
+          )}
+        </Toolbar>
+      </AppBar>
     </>
   );
 };

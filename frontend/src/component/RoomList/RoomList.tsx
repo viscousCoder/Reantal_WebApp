@@ -23,6 +23,7 @@ import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import { fetchProperties } from "../../store/propertySlice";
+import Loading from "../Loading/Loading";
 
 // Random rating and review helper
 const getRandomRating = () => {
@@ -46,7 +47,7 @@ const PGCard = styled(Card)(({ theme }) => ({
 
 const PGList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { properties: dummyPGData } = useSelector(
+  const { propertyLoading, properties: dummyPGData } = useSelector(
     (state: RootState) => state.property
   );
 
@@ -117,6 +118,7 @@ const PGList: React.FC = () => {
       {/* {propertyLoading ? (
         <Loading />
       ) : ( */}
+      {propertyLoading && <Loading />}
       <Container sx={{ maxWidth: "1600px !important" }}>
         <Box
           sx={{

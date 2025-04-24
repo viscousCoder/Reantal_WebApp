@@ -406,7 +406,11 @@ export const loginUser = createAsyncThunk<
     return response.data.userData;
   } catch (error) {
     const axiosError = error as AxiosError<ErrorResponse>;
-    toast.error("Login failed");
+    if (axios.isAxiosError(error) && error.response?.data?.errors?.general) {
+      toast.error(error.response.data.errors.general);
+    } else {
+      toast.error("Login failed");
+    }
     return rejectWithValue(
       axiosError.response?.data || {
         errors: { server: "Internal server error" },

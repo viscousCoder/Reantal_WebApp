@@ -704,7 +704,7 @@ export async function handleLoginUser(
 
     if (!user) {
       res.status(401).json({
-        errors: { general: "Invalid email or password" },
+        errors: { general: "User not found, please register first" },
       });
       return;
     }
@@ -949,7 +949,12 @@ export async function handleFullDetails(
       const userRepo = AppDataSource.getRepository(User);
       user = await userRepo.findOne({
         where: { id },
-        relations: ["bookings", "bookings.property"],
+        relations: [
+          "bookings",
+          "bookings.property",
+          "history",
+          "paymentMethods",
+        ],
       });
     } else if (userRole === "owner" || userRole === "admin") {
       const ownerRepository = AppDataSource.getRepository(Owner);

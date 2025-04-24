@@ -434,346 +434,343 @@ const PropertyListing: React.FC = () => {
 
   return (
     <>
-      {loading ? (
-        <Loading />
-      ) : (
-        <Container>
-          <Box p={4}>
-            <Typography variant="h5" gutterBottom>
-              Add New Property Listing
-            </Typography>
-            <Typography variant="subtitle1" gutterBottom>
-              Basic information about your property
-            </Typography>
-            <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
-              {steps.map((label) => (
-                <Step key={label}>
-                  <StepLabel>{label}</StepLabel>
-                </Step>
-              ))}
-            </Stepper>
+      {loading && <Loading />}
+      <Container>
+        <Box p={4}>
+          <Typography variant="h5" gutterBottom>
+            Add New Property Listing
+          </Typography>
+          <Typography variant="subtitle1" gutterBottom>
+            Basic information about your property
+          </Typography>
+          <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
 
-            {activeStep === 0 && (
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12 }}>
-                  <TextField
-                    label="Property Address"
-                    name="address"
-                    value={form.address}
-                    onChange={handleChange}
-                    onFocus={handleFocus}
-                    error={!!errors.address}
-                    helperText={errors.address}
-                    fullWidth
-                  />
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <TextField
-                    select
-                    label="Property Type"
-                    name="propertyType"
-                    value={form.propertyType}
-                    onChange={handleChange}
-                    onFocus={handleFocus}
-                    error={!!errors.propertyType}
-                    helperText={errors.propertyType}
-                    fullWidth
-                  >
-                    {propertyTypes.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        {type}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <TextField
-                    label="Square Footage"
-                    name="squareFootage"
-                    value={form.squareFootage}
-                    onChange={handleChange}
-                    onFocus={handleFocus}
-                    error={!!errors.squareFootage}
-                    helperText={errors.squareFootage}
-                    fullWidth
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">sq ft</InputAdornment>
-                      ),
-                    }}
-                    type="number"
-                  />
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <TextField
-                    label="No. Of Bedroom"
-                    name="bedrooms"
-                    value={form.bedrooms}
-                    onChange={handleChange}
-                    onFocus={handleFocus}
-                    error={!!errors.bedrooms}
-                    helperText={errors.bedrooms}
-                    fullWidth
-                    type="number"
-                    InputProps={{
-                      inputProps: { style: { textAlign: "center" } },
-                      endAdornment: (
-                        <Button
-                          onClick={() => handleCounterChange("bedrooms", 1)}
-                        >
-                          <AddIcon sx={{ color: "#666666" }} />
-                        </Button>
-                      ),
-                      startAdornment: (
-                        <Button
-                          onClick={() => handleCounterChange("bedrooms", -1)}
-                        >
-                          <RemoveIcon sx={{ color: "#666666" }} />
-                        </Button>
-                      ),
-                    }}
-                  />
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <TextField
-                    label="No. of Bathroom"
-                    name="bathrooms"
-                    value={form.bathrooms}
-                    onChange={handleChange}
-                    onFocus={handleFocus}
-                    error={!!errors.bathrooms}
-                    helperText={errors.bathrooms}
-                    fullWidth
-                    type="number"
-                    InputProps={{
-                      inputProps: { style: { textAlign: "center" } },
-                      endAdornment: (
-                        <Button
-                          onClick={() => handleCounterChange("bathrooms", 1)}
-                        >
-                          <AddIcon sx={{ color: "#666666" }} />
-                        </Button>
-                      ),
-                      startAdornment: (
-                        <Button
-                          onClick={() => handleCounterChange("bathrooms", -1)}
-                        >
-                          <RemoveIcon sx={{ color: "#666666" }} />
-                        </Button>
-                      ),
-                    }}
-                  />
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <TextField
-                    label="Monthly Rent"
-                    name="rent"
-                    value={form.rent}
-                    onChange={handleChange}
-                    onFocus={handleFocus}
-                    error={!!errors.rent}
-                    helperText={errors.rent}
-                    fullWidth
-                    type="number"
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <CurrencyRupeeIcon fontSize="inherit" />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <TextField
-                    label="Security Deposit"
-                    name="securityDeposit"
-                    value={form.securityDeposit}
-                    onChange={handleChange}
-                    onFocus={handleFocus}
-                    error={!!errors.securityDeposit}
-                    helperText={errors.securityDeposit}
-                    fullWidth
-                    type="number"
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <CurrencyRupeeIcon fontSize="inherit" />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <TextField
-                    select
-                    label="Lease Term"
-                    name="leaseTerm"
-                    value={form.leaseTerm}
-                    onChange={handleChange}
-                    onFocus={handleFocus}
-                    error={!!errors.leaseTerm}
-                    helperText={errors.leaseTerm}
-                    fullWidth
-                  >
-                    {leaseTerms.map((term) => (
-                      <MenuItem key={term} value={term}>
-                        {term}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <DatePicker
-                      label="Date Available"
-                      value={form.availableDate}
-                      minDate={new Date()}
-                      onChange={(newValue) =>
-                        setForm({ ...form, availableDate: newValue })
-                      }
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          error: !!errors.availableDate,
-                          helperText: errors.availableDate,
-                          onFocus: handleFocus,
-                        },
-                      }}
-                    />
-                  </LocalizationProvider>
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <TextField
-                    label="No. of set"
-                    name="noOfSet"
-                    value={form.noOfSet}
-                    onChange={handleChange}
-                    onFocus={handleFocus}
-                    error={!!errors.noOfSet}
-                    helperText={errors.noOfSet}
-                    fullWidth
-                    type="number"
-                  />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={form.isAvailable}
-                        onChange={(e) =>
-                          setForm({ ...form, isAvailable: e.target.checked })
-                        }
-                      />
-                    }
-                    label="Property Available"
-                  />
-                </Grid>
+          {activeStep === 0 && (
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12 }}>
+                <TextField
+                  label="Property Address"
+                  name="address"
+                  value={form.address}
+                  onChange={handleChange}
+                  onFocus={handleFocus}
+                  error={!!errors.address}
+                  helperText={errors.address}
+                  fullWidth
+                />
               </Grid>
-            )}
-
-            {activeStep === 1 && (
-              <>
-                <PropertyPhotos
-                  photos={form.photos}
-                  setPhotos={(newPhotos) => {
-                    setForm((prev) => ({ ...prev, photos: newPhotos }));
-                    setErrors((prev) => ({ ...prev, photos: undefined }));
+              <Grid size={{ xs: 6 }}>
+                <TextField
+                  select
+                  label="Property Type"
+                  name="propertyType"
+                  value={form.propertyType}
+                  onChange={handleChange}
+                  onFocus={handleFocus}
+                  error={!!errors.propertyType}
+                  helperText={errors.propertyType}
+                  fullWidth
+                >
+                  {propertyTypes.map((type) => (
+                    <MenuItem key={type} value={type}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <TextField
+                  label="Square Footage"
+                  name="squareFootage"
+                  value={form.squareFootage}
+                  onChange={handleChange}
+                  onFocus={handleFocus}
+                  error={!!errors.squareFootage}
+                  helperText={errors.squareFootage}
+                  fullWidth
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">sq ft</InputAdornment>
+                    ),
                   }}
-                  error={errors.photos}
+                  type="number"
                 />
-                {errors.photos && (
-                  <Typography
-                    variant="body2"
-                    color="error"
-                    sx={{ mt: 1, ml: 2, fontWeight: 500 }}
-                  >
-                    {errors.photos}
-                  </Typography>
-                )}
-              </>
-            )}
-
-            {activeStep == 2 && (
-              <>
-                <Description
-                  initialValues={{
-                    propertyTitle: form.propertyTitle,
-                    detailedDescription: form.detailedDescription,
-                    shortDescription: form.shortDescription,
-                    amenities: form.amenities,
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <TextField
+                  label="No. Of Bedroom"
+                  name="bedrooms"
+                  value={form.bedrooms}
+                  onChange={handleChange}
+                  onFocus={handleFocus}
+                  error={!!errors.bedrooms}
+                  helperText={errors.bedrooms}
+                  fullWidth
+                  type="number"
+                  InputProps={{
+                    inputProps: { style: { textAlign: "center" } },
+                    endAdornment: (
+                      <Button
+                        onClick={() => handleCounterChange("bedrooms", 1)}
+                      >
+                        <AddIcon sx={{ color: "#666666" }} />
+                      </Button>
+                    ),
+                    startAdornment: (
+                      <Button
+                        onClick={() => handleCounterChange("bedrooms", -1)}
+                      >
+                        <RemoveIcon sx={{ color: "#666666" }} />
+                      </Button>
+                    ),
                   }}
-                  onUpdate={handleDescriptionUpdate}
-                  errors={{
-                    propertyTitle: errors.propertyTitle,
-                    detailedDescription: errors.detailedDescription,
-                    shortDescription: errors.shortDescription,
-                    amenities: errors.amenities,
-                  }}
-                  onFieldFocus={handleFieldFocus}
                 />
-
-                <Neighborhood
-                  initialValues={{
-                    neighborhood: form.neighborhood,
-                    transportation: form.transportation,
-                    description: form.neighborhoodDescription,
-                    points: form.pointsOfInterest,
-                    location: [
-                      form.neighborhoodLatitude,
-                      form.neighborhoodLongitude,
-                    ],
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <TextField
+                  label="No. of Bathroom"
+                  name="bathrooms"
+                  value={form.bathrooms}
+                  onChange={handleChange}
+                  onFocus={handleFocus}
+                  error={!!errors.bathrooms}
+                  helperText={errors.bathrooms}
+                  fullWidth
+                  type="number"
+                  InputProps={{
+                    inputProps: { style: { textAlign: "center" } },
+                    endAdornment: (
+                      <Button
+                        onClick={() => handleCounterChange("bathrooms", 1)}
+                      >
+                        <AddIcon sx={{ color: "#666666" }} />
+                      </Button>
+                    ),
+                    startAdornment: (
+                      <Button
+                        onClick={() => handleCounterChange("bathrooms", -1)}
+                      >
+                        <RemoveIcon sx={{ color: "#666666" }} />
+                      </Button>
+                    ),
                   }}
-                  onUpdate={handleNeighborhoodUpdate}
-                  errors={{
-                    neighborhood: errors.neighborhood,
-                    transportation: errors.transportation,
-                    neighborhoodDescription: errors.neighborhoodDescription,
-                    pointsOfInterest: errors.pointsOfInterest,
-                    // mapLocation: errors.mapLocation,
-                  }}
-                  onFieldFocus={handleFieldFocus}
                 />
-              </>
-            )}
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <TextField
+                  label="Monthly Rent"
+                  name="rent"
+                  value={form.rent}
+                  onChange={handleChange}
+                  onFocus={handleFocus}
+                  error={!!errors.rent}
+                  helperText={errors.rent}
+                  fullWidth
+                  type="number"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <CurrencyRupeeIcon fontSize="inherit" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <TextField
+                  label="Security Deposit"
+                  name="securityDeposit"
+                  value={form.securityDeposit}
+                  onChange={handleChange}
+                  onFocus={handleFocus}
+                  error={!!errors.securityDeposit}
+                  helperText={errors.securityDeposit}
+                  fullWidth
+                  type="number"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <CurrencyRupeeIcon fontSize="inherit" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <TextField
+                  select
+                  label="Lease Term"
+                  name="leaseTerm"
+                  value={form.leaseTerm}
+                  onChange={handleChange}
+                  onFocus={handleFocus}
+                  error={!!errors.leaseTerm}
+                  helperText={errors.leaseTerm}
+                  fullWidth
+                >
+                  {leaseTerms.map((term) => (
+                    <MenuItem key={term} value={term}>
+                      {term}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DatePicker
+                    label="Date Available"
+                    value={form.availableDate}
+                    minDate={new Date()}
+                    onChange={(newValue) =>
+                      setForm({ ...form, availableDate: newValue })
+                    }
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        error: !!errors.availableDate,
+                        helperText: errors.availableDate,
+                        onFocus: handleFocus,
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <TextField
+                  label="No. of set"
+                  name="noOfSet"
+                  value={form.noOfSet}
+                  onChange={handleChange}
+                  onFocus={handleFocus}
+                  error={!!errors.noOfSet}
+                  helperText={errors.noOfSet}
+                  fullWidth
+                  type="number"
+                />
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={form.isAvailable}
+                      onChange={(e) =>
+                        setForm({ ...form, isAvailable: e.target.checked })
+                      }
+                    />
+                  }
+                  label="Property Available"
+                />
+              </Grid>
+            </Grid>
+          )}
 
-            {activeStep === 3 && (
-              <PropertyPolicies
-                initialValues={{
-                  petPolicy: form.petPolicy,
-                  petPolicyDescription: form.petPolicyDescription,
-                  smokingPolicy: form.smokingPolicy,
-                  smokingPolicyDescription: form.smokingPolicyDescription,
-                  noisePolicy: form.noisePolicy,
-                  guestPolicy: form.guestPolicy,
-                  additionalPolicies: form.additionalPolicies,
+          {activeStep === 1 && (
+            <>
+              <PropertyPhotos
+                photos={form.photos}
+                setPhotos={(newPhotos) => {
+                  setForm((prev) => ({ ...prev, photos: newPhotos }));
+                  setErrors((prev) => ({ ...prev, photos: undefined }));
                 }}
-                errors={errors}
-                setErrors={setErrors}
-                onUpdate={(values) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    ...values,
-                  }))
-                }
+                error={errors.photos}
               />
-            )}
+              {errors.photos && (
+                <Typography
+                  variant="body2"
+                  color="error"
+                  sx={{ mt: 1, ml: 2, fontWeight: 500 }}
+                >
+                  {errors.photos}
+                </Typography>
+              )}
+            </>
+          )}
 
-            <Box mt={3} display="flex" justifyContent="space-between">
-              <Button
-                variant="outlined"
-                onClick={handleBack}
-                disabled={activeStep === 0}
-              >
-                Back to Properties
-              </Button>
-              <Button variant="contained" color="primary" onClick={handleNext}>
-                {activeStep === steps.length - 1 ? "Finish" : "Next"}
-              </Button>
-            </Box>
+          {activeStep == 2 && (
+            <>
+              <Description
+                initialValues={{
+                  propertyTitle: form.propertyTitle,
+                  detailedDescription: form.detailedDescription,
+                  shortDescription: form.shortDescription,
+                  amenities: form.amenities,
+                }}
+                onUpdate={handleDescriptionUpdate}
+                errors={{
+                  propertyTitle: errors.propertyTitle,
+                  detailedDescription: errors.detailedDescription,
+                  shortDescription: errors.shortDescription,
+                  amenities: errors.amenities,
+                }}
+                onFieldFocus={handleFieldFocus}
+              />
+
+              <Neighborhood
+                initialValues={{
+                  neighborhood: form.neighborhood,
+                  transportation: form.transportation,
+                  description: form.neighborhoodDescription,
+                  points: form.pointsOfInterest,
+                  location: [
+                    form.neighborhoodLatitude,
+                    form.neighborhoodLongitude,
+                  ],
+                }}
+                onUpdate={handleNeighborhoodUpdate}
+                errors={{
+                  neighborhood: errors.neighborhood,
+                  transportation: errors.transportation,
+                  neighborhoodDescription: errors.neighborhoodDescription,
+                  pointsOfInterest: errors.pointsOfInterest,
+                  // mapLocation: errors.mapLocation,
+                }}
+                onFieldFocus={handleFieldFocus}
+              />
+            </>
+          )}
+
+          {activeStep === 3 && (
+            <PropertyPolicies
+              initialValues={{
+                petPolicy: form.petPolicy,
+                petPolicyDescription: form.petPolicyDescription,
+                smokingPolicy: form.smokingPolicy,
+                smokingPolicyDescription: form.smokingPolicyDescription,
+                noisePolicy: form.noisePolicy,
+                guestPolicy: form.guestPolicy,
+                additionalPolicies: form.additionalPolicies,
+              }}
+              errors={errors}
+              setErrors={setErrors}
+              onUpdate={(values) =>
+                setForm((prev) => ({
+                  ...prev,
+                  ...values,
+                }))
+              }
+            />
+          )}
+
+          <Box mt={3} display="flex" justifyContent="space-between">
+            <Button
+              variant="outlined"
+              onClick={handleBack}
+              disabled={activeStep === 0}
+            >
+              Back to Properties
+            </Button>
+            <Button variant="contained" color="primary" onClick={handleNext}>
+              {activeStep === steps.length - 1 ? "Finish" : "Next"}
+            </Button>
           </Box>
-        </Container>
-      )}
+        </Box>
+      </Container>
     </>
   );
 };

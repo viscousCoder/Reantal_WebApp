@@ -126,92 +126,150 @@ const ListedProperties: React.FC = () => {
     navigate(`/listed/${propertyId}`);
   };
 
-  if (currentOwnerLoading) {
-    return <Loading />;
-  }
+  // if (currentOwnerLoading) {
+  //   return <Loading />;
+  // }
 
   return (
-    <Box
-      sx={{
-        p: { xs: 2, md: 4 },
-        backgroundColor: "#f5f7fa",
-        minHeight: "100vh",
-      }}
-    >
-      {/* Header */}
+    <>
+      {currentOwnerLoading && <Loading />}
       <Box
         sx={{
-          display: "flex",
-          flexDirection: { xs: "column", sm: "row" },
-          justifyContent: "space-between",
-          alignItems: { xs: "flex-start", sm: "center" },
-          mb: 4,
-          gap: 2,
+          p: { xs: 2, md: 4 },
+          backgroundColor: "#f5f7fa",
+          minHeight: "100vh",
         }}
       >
-        <Typography variant="h5" fontWeight={600}>
-          My Listed Properties
-        </Typography>
-        {/* <Button variant="contained" color="primary">
+        {/* Header */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            justifyContent: "space-between",
+            alignItems: { xs: "flex-start", sm: "center" },
+            mb: 4,
+            gap: 2,
+          }}
+        >
+          <Typography variant="h5" fontWeight={600}>
+            My Listed Properties
+          </Typography>
+          {/* <Button variant="contained" color="primary">
           Add New Property
         </Button> */}
-      </Box>
+        </Box>
 
-      {/* Responsive View */}
-      {isMobile ? (
-        <Grid container spacing={2}>
-          {currentItems?.map((property) => (
-            <Grid size={{ xs: 12 }} key={property.id}>
-              <Card sx={{ borderRadius: 2 }}>
-                <CardContent>
-                  <Box display="flex" gap={2} mb={2}>
-                    <PlaceholderImage image={property?.photos[0]?.url} />
-                    <Box>
-                      <Typography variant="body1">
-                        {property.description.title}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {property.propertyType}
-                      </Typography>
+        {/* Responsive View */}
+        {isMobile ? (
+          <Grid container spacing={2}>
+            {currentItems?.map((property) => (
+              <Grid size={{ xs: 12 }} key={property.id}>
+                <Card sx={{ borderRadius: 2 }}>
+                  <CardContent>
+                    <Box display="flex" gap={2} mb={2}>
+                      <PlaceholderImage image={property?.photos[0]?.url} />
+                      <Box>
+                        <Typography variant="body1">
+                          {property.description.title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {property.propertyType}
+                        </Typography>
 
-                      <Chip
-                        label={"Listed"}
-                        color={"success"}
-                        size="small"
-                        sx={{ mt: 1 }}
-                      />
+                        <Chip
+                          label={"Listed"}
+                          color={"success"}
+                          size="small"
+                          sx={{ mt: 1 }}
+                        />
+                      </Box>
                     </Box>
-                  </Box>
 
-                  <Typography variant="body2" color="text.secondary">
-                    Location:
-                  </Typography>
-                  <Typography variant="body1">{property.address}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Location:
+                    </Typography>
+                    <Typography variant="body1">{property.address}</Typography>
 
-                  <Typography variant="body2" color="text.secondary" mt={2}>
-                    Price:
-                  </Typography>
-                  <Typography variant="body1">
-                    ₹{property.rent}/month
-                  </Typography>
+                    <Typography variant="body2" color="text.secondary" mt={2}>
+                      Price:
+                    </Typography>
+                    <Typography variant="body1">
+                      ₹{property.rent}/month
+                    </Typography>
 
-                  <Typography variant="body2" color="text.secondary" mt={2}>
-                    Total Rooms:
-                  </Typography>
-                  <Typography variant="body1">{property.noOfSet}</Typography>
+                    <Typography variant="body2" color="text.secondary" mt={2}>
+                      Total Rooms:
+                    </Typography>
+                    <Typography variant="body1">{property.noOfSet}</Typography>
 
-                  <Typography variant="body2" color="text.secondary" mt={2}>
-                    Listed on:
-                  </Typography>
-                  <Typography variant="body1">
-                    {new Date(property.created_at).toLocaleDateString()}
-                  </Typography>
+                    <Typography variant="body2" color="text.secondary" mt={2}>
+                      Listed on:
+                    </Typography>
+                    <Typography variant="body1">
+                      {new Date(property.created_at).toLocaleDateString()}
+                    </Typography>
 
-                  <Box mt={3}>
+                    <Box mt={3}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        onClick={() => handleAction(property.id)}
+                      >
+                        {property.status === "Listed"
+                          ? "Edit"
+                          : property.status === "Draft"
+                          ? "View"
+                          : "View Activate"}
+                      </Button>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        ) : (
+          <Table sx={{ minWidth: 650 }} aria-label="listed properties table">
+            <TableHead>
+              <TableRow>
+                <TableCell>PROPERTY</TableCell>
+                <TableCell>LOCATION</TableCell>
+                <TableCell>STATUS</TableCell>
+                <TableCell>PRICE</TableCell>
+                <TableCell>DETAILS</TableCell>
+                <TableCell>ACTIONS</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {currentItems?.map((property) => (
+                <PropertyRow key={property.id}>
+                  <TableCell>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <PlaceholderImage image={property.photos[0]?.url} />
+                      <Box>
+                        <Typography variant="body1">
+                          {property.description.title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {property.propertyType}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </TableCell>
+                  <TableCell>{property.address}</TableCell>
+                  <TableCell>
+                    <Chip label={"Listed"} color={"success"} size="small" />
+                  </TableCell>
+                  <TableCell>₹{property.rent}/month</TableCell>
+                  <TableCell>
+                    Total Rooms: {property.noOfSet}
+                    <br />
+                    Listed: {new Date(property.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
                     <Button
                       variant="contained"
                       color="primary"
-                      fullWidth
                       onClick={() => handleAction(property.id)}
                     >
                       {property.status === "Listed"
@@ -220,80 +278,25 @@ const ListedProperties: React.FC = () => {
                         ? "View"
                         : "View Activate"}
                     </Button>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      ) : (
-        <Table sx={{ minWidth: 650 }} aria-label="listed properties table">
-          <TableHead>
-            <TableRow>
-              <TableCell>PROPERTY</TableCell>
-              <TableCell>LOCATION</TableCell>
-              <TableCell>STATUS</TableCell>
-              <TableCell>PRICE</TableCell>
-              <TableCell>DETAILS</TableCell>
-              <TableCell>ACTIONS</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {currentItems?.map((property) => (
-              <PropertyRow key={property.id}>
-                <TableCell>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <PlaceholderImage image={property.photos[0]?.url} />
-                    <Box>
-                      <Typography variant="body1">
-                        {property.description.title}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {property.propertyType}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </TableCell>
-                <TableCell>{property.address}</TableCell>
-                <TableCell>
-                  <Chip label={"Listed"} color={"success"} size="small" />
-                </TableCell>
-                <TableCell>₹{property.rent}/month</TableCell>
-                <TableCell>
-                  Total Rooms: {property.noOfSet}
-                  <br />
-                  Listed: {new Date(property.created_at).toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleAction(property.id)}
-                  >
-                    {property.status === "Listed"
-                      ? "Edit"
-                      : property.status === "Draft"
-                      ? "View"
-                      : "View Activate"}
-                  </Button>
-                </TableCell>
-              </PropertyRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+                  </TableCell>
+                </PropertyRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
 
-      <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
-        <Pagination
-          count={totalPages}
-          page={page}
-          onChange={(_, value) => setPage(value)}
-          renderItem={renderCustomPaginationItem}
-          siblingCount={1}
-          boundaryCount={2}
-        />
-      </Stack>
-    </Box>
+        <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={(_, value) => setPage(value)}
+            renderItem={renderCustomPaginationItem}
+            siblingCount={1}
+            boundaryCount={2}
+          />
+        </Stack>
+      </Box>
+    </>
   );
 };
 

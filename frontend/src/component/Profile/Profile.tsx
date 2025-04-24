@@ -39,240 +39,140 @@ const Profile: React.FC = () => {
 
   return (
     <>
-      {loading ? (
-        <Loading />
-      ) : (
-        <Box p={2}>
-          {/* Profile Header */}
-          <Card
-            sx={{
-              mb: 2,
-              p: 3,
-              display: "flex",
-              flexDirection: isMobile ? "column" : "row",
-              alignItems: "center",
-              gap: 3,
-            }}
-          >
-            <Avatar
-              src={user?.profilePicture || ""}
-              alt={user?.fullName || ""}
-              sx={{ width: 80, height: 80 }}
-            />
-            <Box>
-              <Typography variant="h5">{user?.fullName}</Typography>
-              <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
-                <Chip label={user?.userRole} color="primary" />
-                <Chip
-                  icon={<EmailIcon />}
-                  label="Email"
-                  color={user?.emailVerified ? "success" : "default"}
-                />
-                <Chip
-                  icon={<PhoneIcon />}
-                  label="Phone"
-                  color={user?.phoneVerified ? "success" : "warning"}
-                />
-              </Box>
+      {loading && <Loading />}
+      <Box p={2}>
+        {/* Profile Header */}
+        <Card
+          sx={{
+            mb: 2,
+            p: 3,
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            alignItems: "center",
+            gap: 3,
+          }}
+        >
+          <Avatar
+            src={user?.profilePicture || ""}
+            alt={user?.fullName || ""}
+            sx={{ width: 80, height: 80 }}
+          />
+          <Box>
+            <Typography variant="h5">{user?.fullName}</Typography>
+            <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
+              <Chip label={user?.userRole} color="primary" />
+              <Chip
+                icon={<EmailIcon />}
+                label="Email"
+                color={user?.emailVerified ? "success" : "default"}
+              />
+              <Chip
+                icon={<PhoneIcon />}
+                label="Phone"
+                color={user?.phoneVerified ? "success" : "warning"}
+              />
             </Box>
-          </Card>
+          </Box>
+        </Card>
 
-          {/* Contact & Address */}
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <Typography variant="h6" gutterBottom>
-                    <EmailIcon sx={{ verticalAlign: "middle", mr: 1 }} />{" "}
-                    Contact Information
-                  </Typography>
-                  <Typography>Email: {user?.email}</Typography>
-                  <Typography>
-                    Phone: {user?.phoneCode}-{user?.phoneNumber}
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <Typography variant="h6" gutterBottom>
-                    <LocationOnIcon sx={{ verticalAlign: "middle", mr: 1 }} />{" "}
-                    Address
-                  </Typography>
-                  <Typography>Street: {user?.street}</Typography>
-                  <Typography>
-                    Location: {user?.city}, {user?.state} {user?.zip}
-                  </Typography>
-                </Grid>
+        {/* Contact & Address */}
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <Typography variant="h6" gutterBottom>
+                  <EmailIcon sx={{ verticalAlign: "middle", mr: 1 }} /> Contact
+                  Information
+                </Typography>
+                <Typography>Email: {user?.email}</Typography>
+                <Typography>
+                  Phone: {user?.phoneCode}-{user?.phoneNumber}
+                </Typography>
               </Grid>
-            </CardContent>
-          </Card>
-
-          {/* Update Password */}
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <Button
-                    variant="outlined"
-                    onClick={() => navigate("/update-password")}
-                  >
-                    Update Password
-                  </Button>
-                </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <Typography variant="h6" gutterBottom>
+                  <LocationOnIcon sx={{ verticalAlign: "middle", mr: 1 }} />{" "}
+                  Address
+                </Typography>
+                <Typography>Street: {user?.street}</Typography>
+                <Typography>
+                  Location: {user?.city}, {user?.state} {user?.zip}
+                </Typography>
               </Grid>
-            </CardContent>
-          </Card>
+            </Grid>
+          </CardContent>
+        </Card>
 
-          {/* Bookings */}
+        {/* Update Password */}
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => navigate("/update-password")}
+                >
+                  Update Password
+                </Button>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                <CalendarTodayIcon sx={{ verticalAlign: "middle", mr: 1 }} />{" "}
-                Your Listed Properties
-              </Typography>
+        {/* Bookings */}
 
-              {/* Check if the user is an owner/admin or tenant */}
-              {user?.userRole === "owner" || user?.userRole === "admin" ? (
-                // If user is an owner/admin, show their listed properties
-                user?.properties?.length === 0 ? (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "200px",
-                      backgroundColor: "#f5f5f5",
-                      borderRadius: "8px",
-                      textAlign: "center",
-                    }}
-                  >
-                    <Typography variant="h6" color="textSecondary">
-                      You have no listed properties at the moment.
-                    </Typography>
-                  </Box>
-                ) : (
-                  <Grid container spacing={2}>
-                    {user?.properties?.map((listed) => {
-                      let availability = "Available";
-                      let availabilityColor = "#e0f7fa";
-                      let availabilityTextColor = "#00acc1";
-                      const noOfRooms = listed.noOfSet;
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              <CalendarTodayIcon sx={{ verticalAlign: "middle", mr: 1 }} /> Your
+              Listed Properties
+            </Typography>
 
-                      // Determine the availability status
-                      if (noOfRooms === 0) {
-                        availability = "Booked";
-                        availabilityColor = "#ffebee";
-                        availabilityTextColor = "#f44336";
-                      } else if (noOfRooms <= 2) {
-                        availability = "Few Rooms Left";
-                        availabilityColor = "#fff3e0";
-                        availabilityTextColor = "#ff9800";
-                      }
+            {/* Check if the user is an owner/admin or tenant */}
+            {user?.userRole === "owner" || user?.userRole === "admin" ? (
+              // If user is an owner/admin, show their listed properties
+              user?.properties?.length === 0 ? (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "200px",
+                    backgroundColor: "#f5f5f5",
+                    borderRadius: "8px",
+                    textAlign: "center",
+                  }}
+                >
+                  <Typography variant="h6" color="textSecondary">
+                    You have no listed properties at the moment.
+                  </Typography>
+                </Box>
+              ) : (
+                <Grid container spacing={2}>
+                  {user?.properties?.map((listed) => {
+                    let availability = "Available";
+                    let availabilityColor = "#e0f7fa";
+                    let availabilityTextColor = "#00acc1";
+                    const noOfRooms = listed.noOfSet;
 
-                      return (
-                        <Grid size={{ xs: 12, md: 4 }} key={listed.id}>
-                          <Card
-                            sx={{ display: "flex", flexDirection: "column" }}
-                          >
-                            {/* Property Image */}
-                            <img
-                              src={listed.photos[0]?.url}
-                              alt={listed.description.title}
-                              style={{
-                                width: "100%",
-                                height: 200,
-                                objectFit: "cover",
-                              }}
-                            />
-                            <CardContent sx={{ minHeight: "8.5rem" }}>
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                }}
-                              >
-                                <Box>
-                                  <Typography
-                                    variant="subtitle1"
-                                    fontWeight={600}
-                                  >
-                                    {listed.description.title}
-                                  </Typography>
-                                  <Typography>
-                                    Listed Date:{" "}
-                                    {new Date(
-                                      listed.created_at
-                                    ).toLocaleDateString()}
-                                  </Typography>
-                                  <Typography>
-                                    Rent: ₹{listed.rent}/month
-                                  </Typography>
-                                </Box>
-                                <Chip
-                                  label={availability}
-                                  size="small"
-                                  sx={{
-                                    backgroundColor: availabilityColor,
-                                    color: availabilityTextColor,
-                                    fontSize: "12px",
-                                  }}
-                                />
-                              </Box>
-                            </CardContent>
-                            <CardActionArea>
-                              <CardActions>
-                                <Button
-                                  variant="contained"
-                                  fullWidth
-                                  sx={{
-                                    backgroundColor: "#000",
-                                    color: "#fff",
-                                    borderRadius: "8px",
-                                    textTransform: "none",
-                                    padding: "8px 16px",
-                                    "&:hover": {
-                                      backgroundColor: "#333",
-                                    },
-                                  }}
-                                  onClick={() =>
-                                    navigate(`/property/${listed.id}`)
-                                  }
-                                >
-                                  View Details
-                                </Button>
-                              </CardActions>
-                            </CardActionArea>
-                          </Card>
-                        </Grid>
-                      );
-                    })}
-                  </Grid>
-                )
-              ) : user?.userRole === "tenant" ? (
-                // If the user is a tenant, show their booked properties
-                user?.bookings?.length === 0 ? (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "200px",
-                      backgroundColor: "#f5f5f5",
-                      borderRadius: "8px",
-                      textAlign: "center",
-                    }}
-                  >
-                    <Typography variant="h6" color="textSecondary">
-                      You have no booked properties at the moment.
-                    </Typography>
-                  </Box>
-                ) : (
-                  <Grid container spacing={2}>
-                    {user?.bookings?.map((booking) => (
-                      <Grid size={{ xs: 12, md: 4 }} key={booking.id}>
+                    // Determine the availability status
+                    if (noOfRooms === 0) {
+                      availability = "Booked";
+                      availabilityColor = "#ffebee";
+                      availabilityTextColor = "#f44336";
+                    } else if (noOfRooms <= 2) {
+                      availability = "Few Rooms Left";
+                      availabilityColor = "#fff3e0";
+                      availabilityTextColor = "#ff9800";
+                    }
+
+                    return (
+                      <Grid size={{ xs: 12, md: 4 }} key={listed.id}>
                         <Card sx={{ display: "flex", flexDirection: "column" }}>
+                          {/* Property Image */}
                           <img
-                            src={booking.property.photos[0]?.url}
-                            alt={booking.property.description.title}
+                            src={listed.photos[0]?.url}
+                            alt={listed.description.title}
                             style={{
                               width: "100%",
                               height: 200,
@@ -291,24 +191,24 @@ const Profile: React.FC = () => {
                                   variant="subtitle1"
                                   fontWeight={600}
                                 >
-                                  {booking.property.description.title}
+                                  {listed.description.title}
                                 </Typography>
                                 <Typography>
-                                  Booking Date:{" "}
+                                  Listed Date:{" "}
                                   {new Date(
-                                    booking.created_at
+                                    listed.created_at
                                   ).toLocaleDateString()}
                                 </Typography>
                                 <Typography>
-                                  Rent: ₹{booking.property.rent}/month
+                                  Rent: ₹{listed.rent}/month
                                 </Typography>
                               </Box>
                               <Chip
-                                label="Booked"
+                                label={availability}
                                 size="small"
                                 sx={{
-                                  backgroundColor: "#ffebee",
-                                  color: "#f44336",
+                                  backgroundColor: availabilityColor,
+                                  color: availabilityTextColor,
                                   fontSize: "12px",
                                 }}
                               />
@@ -330,7 +230,7 @@ const Profile: React.FC = () => {
                                   },
                                 }}
                                 onClick={() =>
-                                  navigate(`/property/${booking.property.id}`)
+                                  navigate(`/property/${listed.id}`)
                                 }
                               >
                                 View Details
@@ -339,10 +239,13 @@ const Profile: React.FC = () => {
                           </CardActionArea>
                         </Card>
                       </Grid>
-                    ))}
-                  </Grid>
-                )
-              ) : (
+                    );
+                  })}
+                </Grid>
+              )
+            ) : user?.userRole === "tenant" ? (
+              // If the user is a tenant, show their booked properties
+              user?.bookings?.length === 0 ? (
                 <Box
                   sx={{
                     display: "flex",
@@ -355,14 +258,103 @@ const Profile: React.FC = () => {
                   }}
                 >
                   <Typography variant="h6" color="textSecondary">
-                    You do not have any properties or bookings.
+                    You have no booked properties at the moment.
                   </Typography>
                 </Box>
-              )}
-            </CardContent>
-          </Card>
-        </Box>
-      )}
+              ) : (
+                <Grid container spacing={2}>
+                  {user?.bookings?.map((booking) => (
+                    <Grid size={{ xs: 12, md: 4 }} key={booking.id}>
+                      <Card sx={{ display: "flex", flexDirection: "column" }}>
+                        <img
+                          src={booking.property.photos[0]?.url}
+                          alt={booking.property.description.title}
+                          style={{
+                            width: "100%",
+                            height: 200,
+                            objectFit: "cover",
+                          }}
+                        />
+                        <CardContent sx={{ minHeight: "8.5rem" }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <Box>
+                              <Typography variant="subtitle1" fontWeight={600}>
+                                {booking.property.description.title}
+                              </Typography>
+                              <Typography>
+                                Booking Date:{" "}
+                                {new Date(
+                                  booking.created_at
+                                ).toLocaleDateString()}
+                              </Typography>
+                              <Typography>
+                                Rent: ₹{booking.property.rent}/month
+                              </Typography>
+                            </Box>
+                            <Chip
+                              label="Booked"
+                              size="small"
+                              sx={{
+                                backgroundColor: "#ffebee",
+                                color: "#f44336",
+                                fontSize: "12px",
+                              }}
+                            />
+                          </Box>
+                        </CardContent>
+                        <CardActionArea>
+                          <CardActions>
+                            <Button
+                              variant="contained"
+                              fullWidth
+                              sx={{
+                                backgroundColor: "#000",
+                                color: "#fff",
+                                borderRadius: "8px",
+                                textTransform: "none",
+                                padding: "8px 16px",
+                                "&:hover": {
+                                  backgroundColor: "#333",
+                                },
+                              }}
+                              onClick={() =>
+                                navigate(`/property/${booking.property.id}`)
+                              }
+                            >
+                              View Details
+                            </Button>
+                          </CardActions>
+                        </CardActionArea>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              )
+            ) : (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "200px",
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: "8px",
+                  textAlign: "center",
+                }}
+              >
+                <Typography variant="h6" color="textSecondary">
+                  You do not have any properties or bookings.
+                </Typography>
+              </Box>
+            )}
+          </CardContent>
+        </Card>
+      </Box>
     </>
   );
 };

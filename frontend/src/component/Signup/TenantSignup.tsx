@@ -86,7 +86,7 @@ const TenantSignup: React.FC = () => {
     (state: RootState) => state.auth
   );
   const navigate = useNavigate();
-  const [activeStep, setActiveStep] = useState(5);
+  const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     email: "",

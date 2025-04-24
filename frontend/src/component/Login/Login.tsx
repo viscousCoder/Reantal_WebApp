@@ -83,8 +83,19 @@ const Login: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setFormData({ ...formData, [e.target.name]: e.target.value });
+  // };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    let updatedValue = value;
+    if (name === "email") {
+      updatedValue = value.charAt(0).toLowerCase() + value.slice(1);
+    }
+
+    setFormData({ ...formData, [name]: updatedValue });
   };
 
   const handleFocus = (field: string) => {
@@ -95,11 +106,6 @@ const Login: React.FC = () => {
     e.preventDefault();
     if (validateForm()) {
       dispatch(loginUser({ formData: formData, navigate }));
-      setFormData({
-        email: "",
-        password: "",
-        userRole: userRole[tabValue],
-      });
     }
   };
 
@@ -226,6 +232,9 @@ const Login: React.FC = () => {
                     : "text"
                 }
                 value={formData[field as keyof typeof formData]}
+                placeholder={
+                  field === "email" ? "user@gmail.com" : "**********"
+                }
                 onChange={handleChange}
                 onFocus={() => handleFocus(field)}
                 error={Boolean(errors[field as keyof typeof errors])}
