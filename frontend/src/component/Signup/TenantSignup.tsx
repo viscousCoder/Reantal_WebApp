@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  Autocomplete,
   Avatar,
   Box,
   Button,
@@ -33,6 +34,15 @@ import {
 import Loading from "../Loading/Loading";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
+interface CardDetails {
+  cardNumber: string;
+  cardHolder: string;
+  expiry: string;
+  cvv: string;
+  bankName: string;
+  ifsc: string;
+}
+
 // Interfaces for TypeScript
 interface FormData {
   fullName: string;
@@ -57,7 +67,6 @@ interface FormData {
   rentalHistory: string;
   profilePicture: string;
   profilePictureFile: File | null;
-  paymentMethod: string;
   generatedEmailOtp: string;
   generatedPhoneOtp: string;
   otpError: string;
@@ -65,6 +74,10 @@ interface FormData {
   verifiedPhoneOtp: string;
   errors: Record<string, string>; // Dynamic error messages
   userRole: string;
+  rentalFiles: File[] | null;
+  paymentMethod: "card" | "upi" | "";
+  cardDetails: CardDetails;
+  upiId: string;
 }
 
 const TenantSignup: React.FC = () => {
@@ -73,7 +86,7 @@ const TenantSignup: React.FC = () => {
     (state: RootState) => state.auth
   );
   const navigate = useNavigate();
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(5);
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     email: "",
@@ -97,7 +110,6 @@ const TenantSignup: React.FC = () => {
     rentalHistory: "",
     profilePicture: "",
     profilePictureFile: null,
-    paymentMethod: "",
     generatedEmailOtp: "",
     generatedPhoneOtp: "",
     otpError: "",
@@ -105,6 +117,17 @@ const TenantSignup: React.FC = () => {
     verifiedPhoneOtp: "",
     errors: {},
     userRole: "tenant",
+    rentalFiles: null,
+    paymentMethod: "",
+    cardDetails: {
+      cardNumber: "",
+      cardHolder: "",
+      expiry: "",
+      cvv: "",
+      bankName: "",
+      ifsc: "",
+    },
+    upiId: "",
   });
 
   const steps = [
@@ -118,6 +141,8 @@ const TenantSignup: React.FC = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const employementType = ["Student", "Professional"];
+  const rentalHistoryOptions = ["Yes", "No"];
 
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
   const toggleConfirmPasswordVisibility = () =>
@@ -128,7 +153,7 @@ const TenantSignup: React.FC = () => {
 
   // Validation Functions
   const validateFullName = (name: string): string | null => {
-    const nameRegex = /^(\w+\s+\w+.*)$/;
+    const nameRegex = /^(\w+.*)$/;
     return nameRegex.test(name)
       ? null
       : "Full name must contain at least two words";
@@ -171,7 +196,7 @@ const TenantSignup: React.FC = () => {
     (
       event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any
     ) => {
-      const value =
+      let value =
         field === "agreeToTerms" ? event.target.checked : event.target.value;
       let errors = { ...formData.errors };
 
@@ -179,7 +204,11 @@ const TenantSignup: React.FC = () => {
         case "fullName":
           errors[field] = validateFullName(value) || "";
           break;
+        // case "email":
+        //   errors[field] = validateEmail(value) || "";
+        //   break;
         case "email":
+          value = value.charAt(0).toLowerCase() + value.slice(1);
           errors[field] = validateEmail(value) || "";
           break;
         case "phoneNumber":
@@ -216,12 +245,63 @@ const TenantSignup: React.FC = () => {
     return strength / 5;
   };
 
+  const validateCardNumber = (v: string) =>
+    /^[0-9]{16}$/.test(v) ? null : "Card number must be 16 digits";
+
+  const validateCVV = (v: string) =>
+    /^[0-9]{3}$/.test(v) ? null : "CVV must be 3 digits";
+
+  const validateExpiry = (v: string) =>
+    /^(0[1-9]|1[0-2])\/\d{2}$/.test(v) ? null : "Use MM/YY";
+
+  const validateIFSC = (v: string) =>
+    /^[A-Z]{4}0[A-Z0-9]{6}$/.test(v.toUpperCase()) ? null : "Invalid IFSC";
+
+  // const validateUpi = (v: string) =>
+  // /^[\\w.-]+@[\\w.-]+$/.test(v) ? null : "Invalid UPI ID";
+  const validateUpi = (v: string) =>
+    /^[\w.-]+@[\w.-]+$/.test(v) ? null : "Invalid UPI ID";
+
   // Handle Focus to Clear Errors
-  const handleFocus = (field: keyof FormData) => () => {
-    setFormData((prev) => ({
-      ...prev,
-      errors: { ...prev.errors, [field]: "" },
-    }));
+  const handleFocus =
+    (field: keyof FormData | `cardDetails.${keyof CardDetails}`) => () => {
+      setFormData((prev) => ({
+        ...prev,
+        errors: { ...prev.errors, [field]: "" },
+      }));
+    };
+
+  const handleCardChange =
+    (field: keyof CardDetails) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      const cardDetails = { ...formData.cardDetails, [field]: value };
+      const errors = { ...formData.errors };
+
+      switch (field) {
+        case "cardNumber":
+          errors.cardNumber = validateCardNumber(value) || "";
+          break;
+        case "cvv":
+          errors.cvv = validateCVV(value) || "";
+          break;
+        case "expiry":
+          errors.expiry = validateExpiry(value) || "";
+          break;
+        case "ifsc":
+          errors.ifsc = validateIFSC(value) || "";
+          break;
+        default:
+          errors[field] = value ? "" : "Required";
+      }
+
+      setFormData({ ...formData, cardDetails, errors });
+    };
+
+  const handleUpiChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const errors = { ...formData.errors };
+    errors.upiId = validateUpi(value) || "";
+    setFormData({ ...formData, upiId: value, errors });
   };
 
   // Check if all required fields are valid for the current step
@@ -265,11 +345,28 @@ const TenantSignup: React.FC = () => {
           ? ""
           : "Profile picture is required";
         return !!formData.profilePictureFile;
+      // case 5:
+      //   errors.paymentMethod = formData.paymentMethod
+      //     ? ""
+      //     : "Payment method is required";
+      //   return !!formData.paymentMethod;
+
       case 5:
-        errors.paymentMethod = formData.paymentMethod
-          ? ""
-          : "Payment method is required";
-        return !!formData.paymentMethod;
+        if (!formData.paymentMethod) {
+          errors.paymentMethod = "Choose a payment method";
+        } else if (formData.paymentMethod === "card") {
+          errors.cardNumber =
+            validateCardNumber(formData.cardDetails.cardNumber) || "";
+          errors.cardHolder = formData.cardDetails.cardHolder ? "" : "Required";
+          errors.expiry = validateExpiry(formData.cardDetails.expiry) || "";
+          errors.cvv = validateCVV(formData.cardDetails.cvv) || "";
+          errors.bankName = formData.cardDetails.bankName ? "" : "Required";
+          errors.ifsc = validateIFSC(formData.cardDetails.ifsc) || "";
+        } else if (formData.paymentMethod === "upi") {
+          errors.upiId = validateUpi(formData.upiId) || "";
+        }
+        return Object.values(errors).every((e) => !e);
+
       default:
         return true;
     }
@@ -304,9 +401,22 @@ const TenantSignup: React.FC = () => {
         ? ""
         : "Profile picture is required";
     } else if (activeStep === 5) {
-      errors.paymentMethod = formData.paymentMethod
-        ? ""
-        : "Payment method is required";
+      // errors.paymentMethod = formData.paymentMethod
+      //   ? ""
+      //   : "Payment method is required";
+      if (!formData.paymentMethod) {
+        errors.paymentMethod = "Choose a payment method";
+      } else if (formData.paymentMethod === "card") {
+        errors.cardNumber =
+          validateCardNumber(formData.cardDetails.cardNumber) || "";
+        errors.cardHolder = formData.cardDetails.cardHolder ? "" : "Required";
+        errors.expiry = validateExpiry(formData.cardDetails.expiry) || "";
+        errors.cvv = validateCVV(formData.cardDetails.cvv) || "";
+        errors.bankName = formData.cardDetails.bankName ? "" : "Required";
+        errors.ifsc = validateIFSC(formData.cardDetails.ifsc) || "";
+      } else if (formData.paymentMethod === "upi") {
+        errors.upiId = validateUpi(formData.upiId) || "";
+      }
     }
 
     setFormData((prev) => ({ ...prev, errors }));
@@ -328,44 +438,51 @@ const TenantSignup: React.FC = () => {
           employment: formData.employment || undefined,
           income: formData.income || undefined,
           rentalHistory: formData.rentalHistory || undefined,
-          paymentMethod: formData.paymentMethod || undefined,
           profilePicture: formData.profilePictureFile, // Send File
           userRole: formData.userRole,
+          rentalFiles: formData.rentalFiles || null,
+          paymentMethod: formData.paymentMethod,
+          cardDetails:
+            formData.paymentMethod === "card"
+              ? formData.cardDetails
+              : undefined,
+          upiId: formData.paymentMethod === "upi" ? formData.upiId : undefined,
         };
 
         dispatch(registerUser({ formData: userFormData, navigate }));
-        setFormData({
-          fullName: "",
-          email: "",
-          phoneCode: "+91",
-          phoneNumber: "",
-          password: "",
-          confirmPassword: "",
-          agreeToTerms: false,
-          street: "",
-          city: "",
-          state: "",
-          zip: "",
-          country: "",
-          verificationMethod: "email",
-          emailOtp: "",
-          phoneOtp: "",
-          emailVerified: false,
-          phoneVerified: true,
-          employment: "",
-          income: "",
-          rentalHistory: "",
-          profilePicture: "",
-          profilePictureFile: null,
-          paymentMethod: "",
-          generatedEmailOtp: "",
-          generatedPhoneOtp: "",
-          otpError: "",
-          verifiedEmailOtp: "",
-          verifiedPhoneOtp: "",
-          errors: {},
-          userRole: "tenant",
-        });
+        // setFormData({
+        //   fullName: "",
+        //   email: "",
+        //   phoneCode: "+91",
+        //   phoneNumber: "",
+        //   password: "",
+        //   confirmPassword: "",
+        //   agreeToTerms: false,
+        //   street: "",
+        //   city: "",
+        //   state: "",
+        //   zip: "",
+        //   country: "",
+        //   verificationMethod: "email",
+        //   emailOtp: "",
+        //   phoneOtp: "",
+        //   emailVerified: false,
+        //   phoneVerified: true,
+        //   employment: "",
+        //   income: "",
+        //   rentalHistory: "",
+        //   profilePicture: "",
+        //   profilePictureFile: null,
+        //   paymentMethod: "",
+        //   generatedEmailOtp: "",
+        //   generatedPhoneOtp: "",
+        //   otpError: "",
+        //   verifiedEmailOtp: "",
+        //   verifiedPhoneOtp: "",
+        //   errors: {},
+        //   userRole: "tenant",
+        //   rentalFiles: [],
+        // });
         // navigate("/login");
       } else {
         setActiveStep((prevStep) => prevStep + 1);
@@ -373,13 +490,6 @@ const TenantSignup: React.FC = () => {
     }
   };
 
-  // const handleBack = () => {
-  //   setActiveStep((prevStep) => prevStep - 1);
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     errors: { ...prev.errors, [steps[activeStep]]: "Re-validate this step" },
-  //   }));
-  // };
   const handleBack = () => {
     setActiveStep((prevStep) => prevStep - 1);
     // Clear errors for the step we're going back to
@@ -427,52 +537,6 @@ const TenantSignup: React.FC = () => {
     }
   };
 
-  // const handleVerify = () => {
-  //   if (formData.verificationMethod === "email") {
-  //     // if (formData.emailOtp === formData.generatedEmailOtp) {
-  //     if (formData.emailOtp === emailOtp) {
-  //       setFormData((prev) => ({
-  //         ...prev,
-  //         emailVerified: true,
-  //         verificationMethod: "phone",
-  //         otpError: "Verified email",
-  //         verifiedEmailOtp: formData.emailOtp,
-  //         errors: { ...prev.errors, verificationMethod: "" },
-  //       }));
-  //     } else {
-  //       setFormData((prev) => ({
-  //         ...prev,
-  //         otpError: "OTP not matched",
-  //       }));
-  //     }
-  //   } else if (formData.verificationMethod === "phone") {
-  //     const phoneNumber = formData.phoneCode + formData.phoneNumber;
-
-  //     dispatch(verifyOtp({ phoneNumber, code: formData.phoneOtp }));
-  //     // if (formData.phoneOtp === formData.generatedPhoneOtp) {
-  //     if (otpVerified) {
-  //       setFormData((prev) => ({
-  //         ...prev,
-  //         phoneVerified: true,
-  //         otpError: "Verified phone",
-  //         verifiedPhoneOtp: formData.phoneOtp,
-  //         errors: { ...prev.errors, verificationMethod: "" },
-  //       }));
-  //     } else {
-  //       setFormData((prev) => ({
-  //         ...prev,
-  //         otpError: "OTP not matched",
-  //       }));
-  //     }
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (formData.emailVerified && formData.phoneVerified) {
-  //     handleNext();
-  //   }
-  // }, [formData.emailVerified, formData.phoneVerified]);
-
   const handleVerify = () => {
     if (formData.verificationMethod === "email") {
       if (formData.emailOtp === emailOtp) {
@@ -491,8 +555,6 @@ const TenantSignup: React.FC = () => {
         }));
       }
     } else if (formData.verificationMethod === "phone") {
-      // const phoneNumber = formData.phoneCode + formData.phoneNumber;
-      // dispatch(verifyOtp({ phoneNumber, code: formData.phoneOtp }));
       setActiveStep((prevStep) => prevStep + 1);
     }
   };
@@ -519,6 +581,27 @@ const TenantSignup: React.FC = () => {
     }
   }, [formData.emailVerified, formData.phoneVerified]);
 
+  useEffect(() => {
+    if (formData.employment === "Student") {
+      setFormData((prev) => ({ ...prev, income: "N/A" }));
+    } else if (
+      formData.employment === "Professional" &&
+      formData.income === "N/A"
+    ) {
+      setFormData((prev) => ({ ...prev, income: "" }));
+    }
+  }, [formData.employment]);
+
+  const handleRentalFileChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setFormData({
+      ...formData,
+      rentalFiles: event.target.files ? Array.from(event.target.files) : null,
+    });
+  };
+
+  console.log("Form Data:", formData);
   return (
     <>
       {loading ? (
@@ -921,29 +1004,75 @@ const TenantSignup: React.FC = () => {
             {activeStep === 3 && (
               <Box mt={3} sx={{ width: "100%" }}>
                 <TextField
-                  fullWidth
+                  select
                   label="Employment Information"
+                  name="employment"
                   margin="normal"
                   value={formData.employment}
                   onChange={handleChange("employment")}
                   variant="outlined"
-                />
+                  fullWidth
+                >
+                  {employementType.map((type) => (
+                    <MenuItem key={type} value={type}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </TextField>
                 <TextField
                   fullWidth
-                  label="Income Details"
+                  label="Monthly Income"
                   margin="normal"
                   value={formData.income}
                   onChange={handleChange("income")}
                   variant="outlined"
+                  disabled={formData.employment === "Student"}
+                  placeholder={
+                    formData.employment === "Professional"
+                      ? "Enter your monthly salary"
+                      : ""
+                  }
+                  helperText={
+                    formData.employment === "Professional"
+                      ? "Please enter your monthly income (in your local currency)"
+                      : ""
+                  }
                 />
-                <TextField
-                  fullWidth
-                  label="Rental History"
-                  margin="normal"
+
+                <Autocomplete
+                  options={rentalHistoryOptions}
                   value={formData.rentalHistory}
-                  onChange={handleChange("rentalHistory")}
-                  variant="outlined"
+                  onChange={(_, newValue) =>
+                    setFormData({ ...formData, rentalHistory: newValue || "" })
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Rental History"
+                      margin="normal"
+                      variant="outlined"
+                      fullWidth
+                    />
+                  )}
                 />
+
+                {formData.rentalHistory === "Yes" && (
+                  <Box mt={2}>
+                    <Typography variant="body1" gutterBottom>
+                      Upload Rental History Documents (up to 3 files):
+                    </Typography>
+                    <Button variant="outlined" component="label">
+                      Upload Files
+                      <input
+                        type="file"
+                        hidden
+                        multiple
+                        accept=".pdf,.doc,.docx,.jpg,.png"
+                        onChange={handleRentalFileChange}
+                      />
+                    </Button>
+                  </Box>
+                )}
               </Box>
             )}
 
@@ -978,7 +1107,7 @@ const TenantSignup: React.FC = () => {
               </Box>
             )}
 
-            {activeStep === 5 && (
+            {/* {activeStep === 5 && (
               <Box mt={3} sx={{ width: "100%" }}>
                 <TextField
                   fullWidth
@@ -992,6 +1121,121 @@ const TenantSignup: React.FC = () => {
                   helperText={formData.errors.paymentMethod}
                   variant="outlined"
                 />
+              </Box>
+            )} */}
+
+            {activeStep === 5 && (
+              <Box mt={3} sx={{ width: "100%" }}>
+                <RadioGroup
+                  row
+                  value={formData.paymentMethod}
+                  onChange={(e) => {
+                    setFormData({
+                      ...formData,
+                      paymentMethod: e.target.value as "card" | "upi",
+                      errors: { ...formData.errors, paymentMethod: "" },
+                    });
+                  }}
+                >
+                  <FormControlLabel
+                    value="card"
+                    control={<Radio />}
+                    label="Debit / Credit Card"
+                  />
+                  <FormControlLabel
+                    value="upi"
+                    control={<Radio />}
+                    label="Online (UPI)"
+                  />
+                </RadioGroup>
+                {formData.errors.paymentMethod && (
+                  <Typography color="error">
+                    {formData.errors.paymentMethod}
+                  </Typography>
+                )}
+
+                {/* Card form */}
+                {formData.paymentMethod === "card" && (
+                  <>
+                    <TextField
+                      label="Card Number"
+                      fullWidth
+                      margin="normal"
+                      inputProps={{ maxLength: 16 }}
+                      value={formData.cardDetails.cardNumber}
+                      onChange={handleCardChange("cardNumber")}
+                      onFocus={handleFocus("cardDetails.cardNumber")}
+                      error={!!formData.errors.cardNumber}
+                      helperText={formData.errors.cardNumber}
+                    />
+                    <TextField
+                      label="Card Holder Name"
+                      fullWidth
+                      margin="normal"
+                      value={formData.cardDetails.cardHolder}
+                      onChange={handleCardChange("cardHolder")}
+                      onFocus={handleFocus("cardDetails.cardHolder")}
+                      error={!!formData.errors.cardHolder}
+                      helperText={formData.errors.cardHolder}
+                    />
+                    <TextField
+                      label="Expiry (MM/YY)"
+                      fullWidth
+                      margin="normal"
+                      value={formData.cardDetails.expiry}
+                      onChange={handleCardChange("expiry")}
+                      onFocus={handleFocus("cardDetails.expiry")}
+                      error={!!formData.errors.expiry}
+                      helperText={formData.errors.expiry}
+                    />
+                    <TextField
+                      label="CVV"
+                      fullWidth
+                      margin="normal"
+                      inputProps={{ maxLength: 3 }}
+                      value={formData.cardDetails.cvv}
+                      onChange={handleCardChange("cvv")}
+                      onFocus={handleFocus("cardDetails.cvv")}
+                      error={!!formData.errors.cvv}
+                      helperText={formData.errors.cvv}
+                    />
+                    <TextField
+                      label="Bank Name"
+                      fullWidth
+                      margin="normal"
+                      value={formData.cardDetails.bankName}
+                      onChange={handleCardChange("bankName")}
+                      onFocus={handleFocus("cardDetails.bankName")}
+                      error={!!formData.errors.bankName}
+                      helperText={formData.errors.bankName}
+                    />
+                    <TextField
+                      label="IFSC Code"
+                      fullWidth
+                      margin="normal"
+                      inputProps={{ maxLength: 11 }}
+                      value={formData.cardDetails.ifsc}
+                      onChange={handleCardChange("ifsc")}
+                      onFocus={handleFocus("cardDetails.ifsc")}
+                      error={!!formData.errors.ifsc}
+                      helperText={formData.errors.ifsc}
+                    />
+                  </>
+                )}
+
+                {/* UPI form */}
+                {formData.paymentMethod === "upi" && (
+                  <TextField
+                    label="UPI ID"
+                    fullWidth
+                    margin="normal"
+                    value={formData.upiId}
+                    onChange={handleUpiChange}
+                    onFocus={handleFocus("upiId")}
+                    error={!!formData.errors.upiId}
+                    helperText={formData.errors.upiId || "example: name@bank"}
+                  />
+                )}
               </Box>
             )}
 

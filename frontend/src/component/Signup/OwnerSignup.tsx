@@ -291,27 +291,6 @@ const OwnerSignup: React.FC = () => {
 
     if (Object.values(errors).every((error) => !error)) {
       if (activeStep === steps.length - 1) {
-        // const userFormData = {
-        //   fullName: formData.fullName,
-        //   email: formData.email,
-        //   phoneCode: formData.phoneCode,
-        //   phoneNumber: formData.phoneNumber,
-        //   password: formData.password,
-        //   confirmPassword: formData.confirmPassword,
-        //   agreeToTerms: formData.agreeToTerms,
-        //   street: formData.street,
-        //   city: formData.city,
-        //   state: formData.state,
-        //   zip: formData.zip,
-        //   country: formData.country,
-        //   profilePicture: formData.profilePictureFile,
-        //   userRole: formData.userRole,
-        //   emailVerified: formData.emailVerified,
-        //   phoneVerified: formData.phoneVerified,
-        // };
-
-        // dispatch(registerOwner({ formData: userFormData, navigate }));
-
         const userFormData = {
           fullName: formData.fullName,
           email: formData.email,

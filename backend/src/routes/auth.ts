@@ -17,18 +17,31 @@ import {
   handleVerifyPhoneOtp,
 } from "../controller/auth";
 // import { uploadProfilePicture } from "../middleware/uploadMiddleware";
-import { upload } from "../utils/cloudinaryUploader";
+// import { upload } from "../utils/cloudinaryUploader";
 import { uploadProfilePicture } from "../middleware/uploadMiddleware";
+import { upload } from "../utils/cloudinaryUploader";
 const router = express.Router();
 
 router.post("/send-email", handleSendEmailOtp);
 router.post("/send-phone", handleSendPhoneOtp);
 router.post("/verify-phone", handleVerifyPhoneOtp);
-router.post("/register", upload.single("profilePicture"), handleRegisterUser);
+// router.post("/register", upload.single("profilePicture"), handleRegisterUser);
+
+// router.post(
+//   "/register",
+//   upload.single("profilePicture"),
+//   upload.array("rentalFiles"),
+//   handleRegisterUser
+// );
+
+router.post("/register", upload, handleRegisterUser);
+
 // router.post("/owner/register", upload.none(), handleRegisterOwner);
+
 router.post(
   "/owner/register",
-  upload.single("profilePicture"),
+  // upload.single("profilePicture"),
+  upload,
   express.json(),
   // uploadProfilePicture,
   handleRegisterOwner

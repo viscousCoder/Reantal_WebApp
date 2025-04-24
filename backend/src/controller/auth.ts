@@ -17,6 +17,8 @@ import cloudinary from "../config/cloudinary";
 import { v4 as uuidv4 } from "uuid";
 import { addMinutes } from "date-fns";
 import { PasswordResetToken } from "../entities/PasswordResetToken";
+import { History } from "../entities/History";
+import { PaymentMethod } from "../entities/PaymentMethod";
 
 const passMailService = new PassMailService();
 
@@ -182,6 +184,161 @@ export async function handleVerifyPhoneOtp(
  * @function handleRegisterUser
  * @description Handles user registration.
  */
+
+// export async function handleRegisterUser(
+//   req: Request,
+//   res: Response
+// ): Promise<void> {
+//   try {
+//     const {
+//       fullName,
+//       email,
+//       phoneCode,
+//       phoneNumber,
+//       password,
+//       confirmPassword,
+//       userRole,
+//       agreeToTerms,
+//       street,
+//       city,
+//       state,
+//       zip,
+//       country,
+//       employment,
+//       income,
+//       rentalHistory,
+//       paymentMethod,
+//     } = req.body;
+
+//     console.log(req.body, "data");
+//     // Basic validation
+//     if (
+//       !fullName ||
+//       !email ||
+//       !phoneNumber ||
+//       !password ||
+//       !confirmPassword ||
+//       !agreeToTerms
+//     ) {
+//       res
+//         .status(400)
+//         .json({ errors: { general: "Required fields are missing" } });
+//       return;
+//     }
+
+//     if (password !== confirmPassword) {
+//       res
+//         .status(400)
+//         .json({ errors: { confirmPassword: "Passwords do not match" } });
+//       return;
+//     }
+
+//     const AppDataSource = await getConnection();
+//     const userRepository = AppDataSource.getRepository(User);
+//     const historyRepository = AppDataSource.getRepository(History); // Add repository for history
+
+//     const existingUser = await userRepository.findOne({
+//       where: [{ email }, { phoneNumber }],
+//     });
+
+//     if (existingUser) {
+//       if (
+//         req.files &&
+//         (req.files as { [fieldname: string]: Express.Multer.File[] })[
+//           "profilePicture"
+//         ]
+//       ) {
+//         await cloudinary.uploader.destroy(
+//           `${
+//             (req.files as { [fieldname: string]: Express.Multer.File[] })[
+//               "profilePicture"
+//             ][0].filename
+//           }`
+//         );
+//       }
+//       res.status(400).json({
+//         errors: {
+//           [existingUser.email === email ? "email" : "phoneNumber"]:
+//             "Already exists",
+//         },
+//       });
+//       return;
+//     }
+
+//     // Create new user
+//     const user = new User();
+//     user.fullName = fullName;
+//     user.email = email;
+//     user.phoneCode = phoneCode || "+91";
+//     user.phoneNumber = phoneNumber;
+//     user.password = await bcrypt.hash(password, 10);
+//     user.agreeToTerms = agreeToTerms;
+//     user.userRole = userRole;
+//     user.street = street || "";
+//     user.city = city || "";
+//     user.state = state || "";
+//     user.zip = zip || "";
+//     user.country = country || "";
+//     user.employment = employment || null;
+//     user.income = income || null;
+//     user.rentalHistory = rentalHistory || null;
+//     user.paymentMethod = paymentMethod || null;
+//     user.emailVerified = true;
+//     user.phoneVerified = true;
+
+//     // Ensure profilePicture is assigned correctly
+//     if (
+//       req.files &&
+//       (req.files as { [fieldname: string]: Express.Multer.File[] })[
+//         "profilePicture"
+//       ]
+//     ) {
+//       user.profilePicture = (
+//         req.files as { [fieldname: string]: Express.Multer.File[] }
+//       )["profilePicture"][0].path;
+//     }
+
+//     // Save user to database
+//     await userRepository.save(user);
+
+//     // Handle rental files upload and create History record for each file
+
+//     if (
+//       req.files &&
+//       Array.isArray(
+//         (req.files as { [fieldname: string]: Express.Multer.File[] })[
+//           "rentalFiles"
+//         ]
+//       )
+//     ) {
+//       for (const file of (
+//         req.files as { [fieldname: string]: Express.Multer.File[] }
+//       )["rentalFiles"]) {
+//         const history = new History();
+//         history.userId = user.id;
+//         history.url = file.path;
+
+//         // Save the history entry for each file
+//         await historyRepository.save(history);
+//       }
+//     }
+//     console.log("data", req.file, req.files);
+
+//     res.status(201).json({
+//       message: "User registered successfully",
+//       user: {
+//         id: user.id,
+//         fullName: user.fullName,
+//         email: user.email,
+//         phoneNumber: user.phoneNumber,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Registration error:", error);
+//     res.status(500).json({ errors: { server: "Internal server error" } });
+//   }
+// }
+
 export async function handleRegisterUser(
   req: Request,
   res: Response
@@ -190,21 +347,28 @@ export async function handleRegisterUser(
     const {
       fullName,
       email,
-      phoneCode,
+      phoneCode = "+91",
       phoneNumber,
       password,
       confirmPassword,
-      userRole,
+      userRole = "tenant",
       agreeToTerms,
-      street,
-      city,
-      state,
-      zip,
-      country,
-      employment,
-      income,
-      rentalHistory,
-      paymentMethod,
+      street = "",
+      city = "",
+      state = "",
+      zip = "",
+      country = "",
+      employment = null,
+      income = null,
+      rentalHistory = null,
+      paymentMethod, // "card" or "upi"
+      upiId,
+      "cardDetails.cardNumber": cardNumber,
+      "cardDetails.cardHolder": cardHolder,
+      "cardDetails.expiry": expiry,
+      "cardDetails.cvv": cvv,
+      "cardDetails.bankName": bankName,
+      "cardDetails.ifsc": ifsc,
     } = req.body;
 
     // Basic validation
@@ -230,16 +394,28 @@ export async function handleRegisterUser(
     }
 
     const AppDataSource = await getConnection();
-
     const userRepository = AppDataSource.getRepository(User);
+    const historyRepo = AppDataSource.getRepository(History);
+    const paymentRepo = AppDataSource.getRepository(PaymentMethod);
+
     const existingUser = await userRepository.findOne({
       where: [{ email }, { phoneNumber }],
     });
 
     if (existingUser) {
-      if (req.file?.filename) {
-        await cloudinary.uploader.destroy(`${req.file.filename}`);
+      if (
+        req.files &&
+        (req.files as { [fieldname: string]: Express.Multer.File[] })[
+          "profilePicture"
+        ]
+      ) {
+        await cloudinary.uploader.destroy(
+          (req.files as { [fieldname: string]: Express.Multer.File[] })[
+            "profilePicture"
+          ][0].filename
+        );
       }
+
       res.status(400).json({
         errors: {
           [existingUser.email === email ? "email" : "phoneNumber"]:
@@ -249,33 +425,93 @@ export async function handleRegisterUser(
       return;
     }
 
-    // Create new user
     const user = new User();
     user.fullName = fullName;
     user.email = email;
-    user.phoneCode = phoneCode || "+91";
+    user.phoneCode = phoneCode;
     user.phoneNumber = phoneNumber;
     user.password = await bcrypt.hash(password, 10);
-    user.agreeToTerms = agreeToTerms;
+    user.agreeToTerms = agreeToTerms === "true" || agreeToTerms === true;
     user.userRole = userRole;
-    user.street = street || "";
-    user.city = city || "";
-    user.state = state || "";
-    user.zip = zip || "";
-    user.country = country || "";
-    user.employment = employment || null;
-    user.income = income || null;
-    user.rentalHistory = rentalHistory || null;
-    user.paymentMethod = paymentMethod || null;
+    user.street = street;
+    user.city = city;
+    user.state = state;
+    user.zip = zip;
+    user.country = country;
+    user.employment = employment;
+    user.income = income;
+    user.rentalHistory = rentalHistory;
+    user.paymentMethod = paymentMethod;
     user.emailVerified = true;
     user.phoneVerified = true;
 
-    if (req.file) {
-      user.profilePicture = req.file.path;
+    if (
+      req.files &&
+      (req.files as { [fieldname: string]: Express.Multer.File[] })[
+        "profilePicture"
+      ]
+    ) {
+      user.profilePicture = (
+        req.files as { [fieldname: string]: Express.Multer.File[] }
+      )["profilePicture"][0].path;
+    } else {
+      user.profilePicture = "";
     }
 
-    // Save user to database
     await userRepository.save(user);
+
+    // Save rental history documents
+    if (
+      req.files &&
+      Array.isArray(
+        (req.files as { [fieldname: string]: Express.Multer.File[] })[
+          "rentalFiles"
+        ]
+      )
+    ) {
+      for (const file of (
+        req.files as { [fieldname: string]: Express.Multer.File[] }
+      )["rentalFiles"]) {
+        const history = new History();
+        history.userId = user.id;
+        history.url = file.path;
+        await historyRepo.save(history);
+      }
+    }
+
+    // Save payment method
+    const pm = new PaymentMethod();
+    pm.user = user;
+
+    if (paymentMethod === "card") {
+      // Validate required fields for card
+      if (!cardNumber || !cardHolder || !expiry || !cvv || !bankName || !ifsc) {
+        res
+          .status(400)
+          .json({ errors: { paymentMethod: "Incomplete card details" } });
+        return;
+      }
+
+      pm.type = "card";
+      pm.cardHolder = cardHolder;
+      pm.cardNumber = cardNumber;
+      // pm.expiry = expiry;
+      // pm.cvv = cvv;
+      pm.bankName = bankName;
+      pm.ifsc = ifsc;
+    } else if (paymentMethod === "upi") {
+      if (!upiId) {
+        res
+          .status(400)
+          .json({ errors: { paymentMethod: "UPI ID is required" } });
+        return;
+      }
+
+      pm.type = "upi";
+      pm.upiId = upiId;
+    }
+
+    await paymentRepo.save(pm);
 
     res.status(201).json({
       message: "User registered successfully",
@@ -393,8 +629,18 @@ export async function handleRegisterOwner(
     owner.verifiedEmailOtp = verifiedEmailOtp || null;
     owner.verifiedPhoneOtp = verifiedPhoneOtp || null;
 
-    if (req.file) {
-      owner.profilePicture = req.file.path;
+    // if (req.file) {
+    //   owner.profilePicture = req.file.path;
+    // }
+    if (
+      req.files &&
+      (req.files as { [fieldname: string]: Express.Multer.File[] })[
+        "profilePicture"
+      ]
+    ) {
+      owner.profilePicture = (
+        req.files as { [fieldname: string]: Express.Multer.File[] }
+      )["profilePicture"][0].path;
     }
 
     await ownerRepository.save(owner);
@@ -840,8 +1086,8 @@ export async function handleSendPasswordResetLink(
     const resetRepo = AppDataSource.getRepository(PasswordResetToken);
     await resetRepo.save({ email, token, expiresAt, userRole });
 
-    // const resetLink = `http://localhost:5173/reset-password?token=${token}`;
-    const resetLink = `https://rentalapp02.netlify.app/reset-password?token=${token}`;
+    const resetLink = `http://localhost:5173/reset-password?token=${token}`;
+    // const resetLink = `https://rentalapp02.netlify.app/reset-password?token=${token}`;
 
     const emailSent = await passMailService.sendResetPasswordEmail(
       email,

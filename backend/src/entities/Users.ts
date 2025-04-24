@@ -8,6 +8,8 @@ import {
 } from "typeorm";
 import { Booking } from "./Booking";
 import { Property } from "./Property"; // Import the Property entity
+import { History } from "./History";
+import { PaymentMethod } from "./PaymentMethod";
 
 @Entity("users")
 export class User {
@@ -80,6 +82,15 @@ export class User {
     onDelete: "CASCADE", // Delete all bookings associated with the user when the user is deleted
   })
   bookings!: Booking[];
+
+  @OneToMany(() => History, (history) => history.user, {
+    cascade: true,
+    onDelete: "CASCADE",
+  })
+  history?: History[];
+
+  @OneToMany(() => PaymentMethod, (pm) => pm.user, { cascade: true })
+  paymentMethods!: PaymentMethod[];
 
   // Add the one-to-many relationship with Property
   // @OneToMany(() => Property, (property) => property.user, {

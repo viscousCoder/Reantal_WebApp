@@ -453,194 +453,6 @@ const PropertyListing: React.FC = () => {
               ))}
             </Stepper>
 
-            {/* {activeStep === 0 && (
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12 }}>
-                <TextField
-                  label="Property Address"
-                  name="address"
-                  value={form.address}
-                  onChange={handleChange}
-                  fullWidth
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  select
-                  label="Property Type"
-                  name="propertyType"
-                  value={form.propertyType}
-                  onChange={handleChange}
-                  fullWidth
-                >
-                  {propertyTypes.map((type) => (
-                    <MenuItem key={type} value={type}>
-                      {type}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  label="Square Footage"
-                  name="squareFootage"
-                  value={form.squareFootage}
-                  onChange={handleChange}
-                  fullWidth
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">sq ft</InputAdornment>
-                    ),
-                  }}
-                  type="number"
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  label="No. Of Bedroom"
-                  name="bedrooms"
-                  value={form.bedrooms}
-                  fullWidth
-                  sx={{ textAlign: "center" }}
-                  InputProps={{
-                    inputProps: {
-                      style: { textAlign: "center" },
-                    },
-                    endAdornment: (
-                      <Button
-                        onClick={() => handleCounterChange("bedrooms", 1)}
-                      >
-                        <AddIcon sx={{ color: "#666666" }} />
-                      </Button>
-                    ),
-                    startAdornment: (
-                      <Button
-                        onClick={() => handleCounterChange("bedrooms", -1)}
-                      >
-                        <RemoveIcon sx={{ color: "#666666" }} />
-                      </Button>
-                    ),
-                  }}
-                  type="number"
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  label="No. of Bathroom"
-                  name="bathrooms"
-                  value={form.bathrooms}
-                  fullWidth
-                  sx={{ textAlign: "center" }}
-                  InputProps={{
-                    inputProps: {
-                      style: { textAlign: "center" },
-                    },
-                    endAdornment: (
-                      <Button
-                        onClick={() => handleCounterChange("bathrooms", 1)}
-                      >
-                        <AddIcon sx={{ color: "#666666" }} />
-                      </Button>
-                    ),
-                    startAdornment: (
-                      <Button
-                        onClick={() => handleCounterChange("bathrooms", -1)}
-                      >
-                        <RemoveIcon sx={{ color: "#666666" }} />
-                      </Button>
-                    ),
-                  }}
-                  type="number"
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  label="Monthly Rent"
-                  name="rent"
-                  value={form.rent}
-                  onChange={handleChange}
-                  fullWidth
-                  type="number"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <CurrencyRupeeIcon fontSize="inherit" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  label="Security Deposit"
-                  name="securityDeposit"
-                  value={form.securityDeposit}
-                  onChange={handleChange}
-                  fullWidth
-                  type="number"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <CurrencyRupeeIcon fontSize="inherit" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  select
-                  label="Lease Term"
-                  name="leaseTerm"
-                  value={form.leaseTerm}
-                  onChange={handleChange}
-                  fullWidth
-                >
-                  {leaseTerms.map((term) => (
-                    <MenuItem key={term} value={term}>
-                      {term}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                  <DatePicker
-                    label="Date Available"
-                    value={form.availableDate}
-                    onChange={(newValue) =>
-                      setForm({ ...form, availableDate: newValue })
-                    }
-                    slotProps={{ textField: { fullWidth: true } }} // Replace renderInput with slotProps
-                  />
-                </LocalizationProvider>
-              </Grid>
-              <Grid size={{ xs: 12 }}>
-                <TextField
-                  label="No. of set"
-                  name="noOfSet"
-                  value={form.noOfSet}
-                  onChange={handleChange}
-                  fullWidth
-                  type="number"
-                />
-              </Grid>
-
-              <Grid size={{ xs: 12 }}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={form.isAvailable}
-                      onChange={(e) =>
-                        setForm({ ...form, isAvailable: e.target.checked })
-                      }
-                    />
-                  }
-                  label="Property Available"
-                />
-              </Grid>
-            </Grid>
-          )} */}
             {activeStep === 0 && (
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12 }}>
@@ -860,14 +672,6 @@ const PropertyListing: React.FC = () => {
               </Grid>
             )}
 
-            {/* {activeStep == 1 && (
-            <PropertyPhotos
-              photos={form.photos}
-              setPhotos={(newPhotos) =>
-                setForm((prev) => ({ ...prev, photos: newPhotos }))
-              }
-            />
-          )} */}
             {activeStep === 1 && (
               <>
                 <PropertyPhotos
@@ -892,15 +696,6 @@ const PropertyListing: React.FC = () => {
 
             {activeStep == 2 && (
               <>
-                {/* <Description
-                initialValues={{
-                  propertyTitle: form.propertyTitle,
-                  detailedDescription: form.detailedDescription,
-                  shortDescription: form.shortDescription,
-                  amenities: form.amenities,
-                }}
-                onUpdate={handleDescriptionUpdate}
-              /> */}
                 <Description
                   initialValues={{
                     propertyTitle: form.propertyTitle,
@@ -918,20 +713,6 @@ const PropertyListing: React.FC = () => {
                   onFieldFocus={handleFieldFocus}
                 />
 
-                {/* <Neighborhood
-                initialValues={{
-                  neighborhood: form.neighborhood,
-                  transportation: form.transportation,
-                  description: form.neighborhoodDescription,
-                  points: form.pointsOfInterest,
-                  location: [
-                    form.neighborhoodLatitude,
-                    form.neighborhoodLongitude,
-                  ],
-                }}
-                // onUpdate={handleNeighborhoodUpdate}
-                onUpdate={handleNeighborhoodUpdate}
-              /> */}
                 <Neighborhood
                   initialValues={{
                     neighborhood: form.neighborhood,
@@ -955,26 +736,6 @@ const PropertyListing: React.FC = () => {
                 />
               </>
             )}
-
-            {/* {activeStep === 3 && (
-            <PropertyPolicies
-              initialValues={{
-                petPolicy: form.petPolicy,
-                petPolicyDescription: form.petPolicyDescription,
-                smokingPolicy: form.smokingPolicy,
-                smokingPolicyDescription: form.smokingPolicyDescription,
-                noisePolicy: form.noisePolicy,
-                guestPolicy: form.guestPolicy,
-                additionalPolicies: form.additionalPolicies,
-              }}
-              onUpdate={(values) =>
-                setForm((prev) => ({
-                  ...prev,
-                  ...values,
-                }))
-              }
-            />
-          )} */}
 
             {activeStep === 3 && (
               <PropertyPolicies

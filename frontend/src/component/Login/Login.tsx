@@ -45,6 +45,7 @@ const Login: React.FC = () => {
   const [language, setLanguage] = useState("English");
   const [showPassword, setShowPassword] = useState(false);
   const userRole = ["tenant", "owner", "admin"];
+  const userRoleName = ["Tenant", "Property Owner", "Admin"];
 
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
@@ -107,214 +108,208 @@ const Login: React.FC = () => {
     navigate("/forgot-password");
   };
 
+  const handleSingnup = () => {
+    navigate(`/${userRole[tabValue]}-signup`);
+  };
+
   return (
     <>
-      {loading ? (
-        <Loading />
-      ) : (
+      {loading && <Loading />}
+      <Grid
+        container
+        sx={{
+          minHeight: "100vh",
+          flexDirection: { xs: "column", md: "row" },
+        }}
+      >
+        {/* Left Side */}
         <Grid
-          container
+          size={{ xs: 12, md: 6 }}
           sx={{
-            minHeight: "100vh",
-            flexDirection: { xs: "column", md: "row" },
+            backgroundImage: `url('https://plus.unsplash.com/premium_photo-1683891068536-2467572c9a2b?q=80&w=3024&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            display: "flex",
+            alignItems: "flex-end",
+            color: "white",
+            padding: 3,
+            height: { xs: "50vh", md: "100vh" },
           }}
         >
-          {/* Left Side */}
-          <Grid
-            size={{ xs: 12, md: 6 }}
-            sx={{
-              backgroundImage: `url('https://plus.unsplash.com/premium_photo-1683891068536-2467572c9a2b?q=80&w=3024&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              display: "flex",
-              alignItems: "flex-end",
-              color: "white",
-              padding: 3,
-              height: { xs: "50vh", md: "100vh" },
-            }}
-          >
-            <TestimonialBox>
-              <Avatar
-                alt="Sarah Johnson"
-                src="https://randomuser.me/api/portraits/women/44.jpg"
-              />
-              <Box>
-                <Typography variant="body1">
-                  "Find the perfect accommodation with WebBroker. We offer a
-                  wide range of rooms, PGs, and hostels to suit your needs and
-                  budget."
-                </Typography>
-                <Typography variant="caption" sx={{ mt: 1 }}>
-                  Sarah Johnson <br /> Happy Tenant
-                </Typography>
-              </Box>
-            </TestimonialBox>
-          </Grid>
-
-          {/* Right Side */}
-          <Grid
-            size={{ xs: 12, md: 6 }}
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: { xs: 3, md: 5 },
-            }}
-          >
-            <Box
-              sx={{
-                width: "100%",
-                display: "flex",
-                justifyContent: "flex-end",
-                mb: 2,
-              }}
-            >
-              <Select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                variant="outlined"
-                size="small"
-              >
-                <MenuItem value="English">English</MenuItem>
-                <MenuItem value="Spanish">Spanish</MenuItem>
-                <MenuItem value="French">French</MenuItem>
-              </Select>
+          <TestimonialBox>
+            <Avatar
+              alt="Sarah Johnson"
+              src="https://randomuser.me/api/portraits/women/44.jpg"
+            />
+            <Box>
+              <Typography variant="body1">
+                "Find the perfect accommodation with WebBroker. We offer a wide
+                range of rooms, PGs, and hostels to suit your needs and budget."
+              </Typography>
+              <Typography variant="caption" sx={{ mt: 1 }}>
+                Sarah Johnson <br /> Happy Tenant
+              </Typography>
             </Box>
+          </TestimonialBox>
+        </Grid>
 
-            <Typography variant="h4" fontWeight="bold">
-              Create Account
-            </Typography>
-            <Typography variant="subtitle1" mb={2}>
-              Join WebBroker today
-            </Typography>
-
-            <Tabs
-              value={tabValue}
-              onChange={(_, newValue) => setTabValue(newValue)}
-              centered
+        {/* Right Side */}
+        <Grid
+          size={{ xs: 12, md: 6 }}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: { xs: 3, md: 5 },
+          }}
+        >
+          <Box
+            sx={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "flex-end",
+              mb: 2,
+            }}
+          >
+            <Select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              variant="outlined"
+              size="small"
             >
-              <Tab label="Tenant" />
-              <Tab label="Property Owner" />
-              <Tab label="Admin" />
-            </Tabs>
+              <MenuItem value="English">English</MenuItem>
+              <MenuItem value="Spanish">Spanish</MenuItem>
+              <MenuItem value="French">French</MenuItem>
+            </Select>
+          </Box>
 
-            <Box
-              component="form"
-              width="100%"
-              maxWidth={400}
-              mt={2}
-              onSubmit={handleSubmit}
-            >
-              {["email", "password"].map((field, index) => (
-                <TextField
-                  key={index}
-                  fullWidth
-                  margin="normal"
-                  label={
-                    field.charAt(0).toUpperCase() +
-                    field.slice(1).replace(/([A-Z])/g, " $1")
-                  }
-                  name={field}
-                  type={
-                    field.includes("password")
-                      ? showPassword
-                        ? "text"
-                        : "password"
-                      : "text"
-                  }
-                  value={formData[field as keyof typeof formData]}
-                  onChange={handleChange}
-                  onFocus={() => handleFocus(field)}
-                  error={Boolean(errors[field as keyof typeof errors])}
-                  helperText={errors[field as keyof typeof errors]}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        {field === "fullName" && <PersonIcon />}
-                        {field === "email" && <EmailIcon />}
-                        {field === "mobile" && <PhoneIcon />}
-                        {field === "password" && <LockIcon />}
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        {field === "password" && (
-                          <IconButton
-                            onClick={togglePasswordVisibility}
-                            edge="end"
-                          >
-                            {showPassword ? <Visibility /> : <VisibilityOff />}
-                          </IconButton>
-                        )}
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              ))}
+          <Typography variant="h4" fontWeight="bold">
+            Create Account
+          </Typography>
+          <Typography variant="subtitle1" mb={2}>
+            Join StayEase Today
+          </Typography>
+
+          <Tabs
+            value={tabValue}
+            onChange={(_, newValue) => setTabValue(newValue)}
+            centered
+          >
+            <Tab label="Tenant" />
+            <Tab label="Property Owner" />
+            <Tab label="Admin" />
+          </Tabs>
+
+          <Box
+            component="form"
+            width="100%"
+            maxWidth={400}
+            mt={2}
+            onSubmit={handleSubmit}
+          >
+            {["email", "password"].map((field, index) => (
               <TextField
+                key={index}
                 fullWidth
                 margin="normal"
-                label="User"
-                value={userRole[tabValue]}
+                label={
+                  field.charAt(0).toUpperCase() +
+                  field.slice(1).replace(/([A-Z])/g, " $1")
+                }
+                name={field}
+                type={
+                  field.includes("password")
+                    ? showPassword
+                      ? "text"
+                      : "password"
+                    : "text"
+                }
+                value={formData[field as keyof typeof formData]}
+                onChange={handleChange}
+                onFocus={() => handleFocus(field)}
+                error={Boolean(errors[field as keyof typeof errors])}
+                helperText={errors[field as keyof typeof errors]}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <PersonIcon />
+                      {field === "fullName" && <PersonIcon />}
+                      {field === "email" && <EmailIcon />}
+                      {field === "mobile" && <PhoneIcon />}
+                      {field === "password" && <LockIcon />}
                     </InputAdornment>
                   ),
-                  readOnly: true,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {field === "password" && (
+                        <IconButton
+                          onClick={togglePasswordVisibility}
+                          edge="end"
+                        >
+                          {showPassword ? <Visibility /> : <VisibilityOff />}
+                        </IconButton>
+                      )}
+                    </InputAdornment>
+                  ),
                 }}
               />
-              <Typography
-                variant="body2"
-                sx={{
-                  mt: 1,
-                  textAlign: "right",
-                  cursor: "pointer",
-                  color: "primary.main",
-                  "&:hover": {
-                    textDecoration: "underline",
-                  },
-                }}
-                onClick={() => handleNavigate()}
-              >
-                Forgot Password?
-              </Typography>
+            ))}
+            <TextField
+              fullWidth
+              margin="normal"
+              label="User"
+              value={userRoleName[tabValue]}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PersonIcon />
+                  </InputAdornment>
+                ),
+                readOnly: true,
+              }}
+            />
+            <Typography
+              variant="body2"
+              sx={{
+                mt: 1,
+                textAlign: "right",
+                cursor: "pointer",
+                color: "primary.main",
+                "&:hover": {
+                  textDecoration: "underline",
+                },
+              }}
+              onClick={() => handleNavigate()}
+            >
+              Forgot Password?
+            </Typography>
 
-              <Button
-                variant="contained"
-                fullWidth
-                sx={{ mt: 2 }}
-                type="submit"
-              >
-                Sign In
-              </Button>
+            <Button variant="contained" fullWidth sx={{ mt: 2 }} type="submit">
+              Sign In
+            </Button>
+            {userRole[tabValue] !== "admin" && (
               <Typography mt={2}>
                 Do not have an account?{" "}
-                <Button
-                  onClick={() => navigate("/signup")}
-                  sx={{ textTransform: "none" }}
-                >
+                <Button onClick={handleSingnup} sx={{ textTransform: "none" }}>
                   Sign up
                 </Button>
               </Typography>
-            </Box>
+            )}
+          </Box>
 
-            <Box display="flex" justifyContent="center" mt={3}>
-              <Typography variant="body2" sx={{ mx: 1 }}>
-                Privacy Policy
-              </Typography>
-              <Typography variant="body2" sx={{ mx: 1 }}>
-                Terms of Service
-              </Typography>
-              <Typography variant="body2" sx={{ mx: 1 }}>
-                Contact Support
-              </Typography>
-            </Box>
-          </Grid>
+          <Box display="flex" justifyContent="center" mt={3}>
+            <Typography variant="body2" sx={{ mx: 1 }}>
+              Privacy Policy
+            </Typography>
+            <Typography variant="body2" sx={{ mx: 1 }}>
+              Terms of Service
+            </Typography>
+            <Typography variant="body2" sx={{ mx: 1 }}>
+              Contact Support
+            </Typography>
+          </Box>
         </Grid>
-      )}
+      </Grid>
     </>
   );
 };

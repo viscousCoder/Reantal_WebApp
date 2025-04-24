@@ -142,6 +142,115 @@ interface RegisterArgs {
   formData: UserFormData;
   navigate: (path: string) => void;
 }
+// export const registerUser = createAsyncThunk<
+//   UserResponse,
+//   RegisterArgs,
+//   { rejectValue: ErrorResponse }
+// >("auth/registerUser", async ({ formData, navigate }, { rejectWithValue }) => {
+//   try {
+//     console.log(formData, "inside");
+//     const data = new FormData();
+//     Object.entries(formData).forEach(([key, value]) => {
+//       if (key === "rentalFiles" && Array.isArray(value)) {
+//         value.forEach((file) => {
+//           if (file instanceof File) {
+//             data.append("rentalFiles", file);
+//           }
+//         });
+//       } else if (key === "profilePicture" && value instanceof File) {
+//         data.append("profilePicture", value);
+//       } else if (typeof value === "boolean") {
+//         data.append(key, value ? "true" : "false");
+//       } else if (value !== undefined && value !== null) {
+//         data.append(key, value.toString());
+//       }
+//     });
+
+//     const response = await axios.post<{ message: string; user: UserResponse }>(
+//       `${apiUrl}/register`,
+//       data,
+//       {
+//         headers: {
+//           "Content-Type": "multipart/form-data",
+//         },
+//       }
+//     );
+
+//     navigate("/login");
+//     toast.success("Registration successful");
+//     return response.data.user;
+//   } catch (error) {
+//     const axiosError = error as AxiosError<ErrorResponse>;
+//     if (axios.isAxiosError(error) && error.response?.data?.message) {
+//       toast.error(error.response.data.message);
+//     } else {
+//       toast.error("Registration failed");
+//     }
+//     console.error("Registration error:", error);
+//     return rejectWithValue(
+//       axiosError.response?.data || {
+//         errors: { server: "Failed to register user" },
+//       }
+//     );
+//   }
+// });
+
+//register tenant
+// export const registerUser = createAsyncThunk<
+//   UserResponse,
+//   RegisterArgs,
+//   { rejectValue: ErrorResponse }
+// >("auth/registerUser", async ({ formData, navigate }, { rejectWithValue }) => {
+//   try {
+//     const data = new FormData();
+
+//     Object.entries(formData).forEach(([key, value]) => {
+//       if (key === "rentalFiles" && Array.isArray(value)) {
+//         value.forEach((file) => {
+//           if (file instanceof File) {
+//             data.append("rentalFiles", file);
+//           }
+//         });
+//       } else if (key === "profilePicture" && value instanceof File) {
+//         data.append("profilePicture", value);
+//       } else if (typeof value === "boolean") {
+//         data.append(key, value ? "true" : "false");
+//       } else if (value !== undefined && value !== null) {
+//         data.append(key, value.toString());
+//       }
+//     });
+
+//     const response = await axios.post<{ message: string; user: UserResponse }>(
+//       `${apiUrl}/register`,
+//       data,
+//       {
+//         headers: {
+//           "Content-Type": "multipart/form-data",
+//         },
+//       }
+//     );
+
+//     navigate("/login");
+//     toast.success("Registration successful");
+
+//     return response.data.user;
+//   } catch (error) {
+//     const axiosError = error as AxiosError<ErrorResponse>;
+//     if (axios.isAxiosError(error) && error.response?.data?.message) {
+//       toast.error(error.response.data.message);
+//     } else {
+//       toast.error("Registration failed");
+//     }
+//     console.error("Registration error:", error);
+
+//     return rejectWithValue(
+//       axiosError.response?.data || {
+//         errors: { server: "Failed to register user" },
+//       }
+//     );
+//   }
+// });
+
 export const registerUser = createAsyncThunk<
   UserResponse,
   RegisterArgs,
@@ -149,11 +258,28 @@ export const registerUser = createAsyncThunk<
 >("auth/registerUser", async ({ formData, navigate }, { rejectWithValue }) => {
   try {
     const data = new FormData();
+
     Object.entries(formData).forEach(([key, value]) => {
-      if (key === "profilePicture" && value instanceof File) {
+      if (key === "rentalFiles" && Array.isArray(value)) {
+        value.forEach((file) => {
+          if (file instanceof File) {
+            data.append("rentalFiles", file);
+          }
+        });
+      } else if (key === "profilePicture" && value instanceof File) {
         data.append("profilePicture", value);
+      } else if (
+        key === "cardDetails" &&
+        formData.paymentMethod === "card" &&
+        typeof value === "object"
+      ) {
+        Object.entries(value).forEach(([cardKey, cardValue]) => {
+          if (cardValue !== undefined && cardValue !== null) {
+            data.append(`cardDetails.${cardKey}`, cardValue.toString());
+          }
+        });
       } else if (typeof value === "boolean") {
-        data.append(key, value ? "true" : "false");
+        data.append(key, value.toString());
       } else if (value !== undefined && value !== null) {
         data.append(key, value.toString());
       }
@@ -169,8 +295,9 @@ export const registerUser = createAsyncThunk<
       }
     );
 
-    navigate("/login");
     toast.success("Registration successful");
+    navigate("/login");
+
     return response.data.user;
   } catch (error) {
     const axiosError = error as AxiosError<ErrorResponse>;
@@ -180,6 +307,7 @@ export const registerUser = createAsyncThunk<
       toast.error("Registration failed");
     }
     console.error("Registration error:", error);
+
     return rejectWithValue(
       axiosError.response?.data || {
         errors: { server: "Failed to register user" },
