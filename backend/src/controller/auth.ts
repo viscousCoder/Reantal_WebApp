@@ -1091,8 +1091,8 @@ export async function handleSendPasswordResetLink(
     const resetRepo = AppDataSource.getRepository(PasswordResetToken);
     await resetRepo.save({ email, token, expiresAt, userRole });
 
-    const resetLink = `http://localhost:5173/reset-password?token=${token}`;
-    // const resetLink = `https://rentalapp02.netlify.app/reset-password?token=${token}`;
+    // const resetLink = `http://localhost:5173/reset-password?token=${token}`;
+    const resetLink = `https://rentalapp02.netlify.app/reset-password?token=${token}`;
 
     const emailSent = await passMailService.sendResetPasswordEmail(
       email,
