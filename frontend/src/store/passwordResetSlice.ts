@@ -19,12 +19,16 @@ const initialState: PasswordResetState = {
 // Send Reset Link
 export const sendResetLink = createAsyncThunk<
   string,
-  { email: string; userRole: string },
+  { email: string; userRole: string; navigate: (path: string) => void },
   { rejectValue: string }
->("passwordReset/sendLink", async (payload, thunkAPI) => {
+>("passwordReset/sendLink", async ({ email, userRole, navigate }, thunkAPI) => {
   try {
-    const res = await axios.post(`${apiUrl}/reset-password`, payload);
+    const res = await axios.post(`${apiUrl}/reset-password`, {
+      email,
+      userRole,
+    });
     toast.success("Reset link sent successfully");
+    navigate("/");
     return res.data.message;
   } catch (error: any) {
     toast.error("Failed to send reset link");
